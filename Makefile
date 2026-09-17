@@ -2,7 +2,7 @@ UV ?= uv
 API_HOST ?= 0.0.0.0
 API_PORT ?= 8000
 
-.PHONY: install sync test run lint fmt typecheck migrate migrate-new up down db-check
+.PHONY: install sync test run lint fmt typecheck migrate migrate-new seed up down db-check
 
 install sync:
 	$(UV) sync --group dev
@@ -29,6 +29,9 @@ migrate:
 
 migrate-new:
 	$(UV) run alembic revision --autogenerate -m "$(m)"
+
+seed:
+	$(UV) run python scripts/seed_candidate.py
 
 up:
 	docker compose up -d

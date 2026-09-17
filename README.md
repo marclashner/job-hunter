@@ -36,6 +36,20 @@ A successful health response looks like:
 
 If the database is unreachable, the same endpoint returns HTTP 503 with `"status": "degraded"`.
 
+## Candidate profile
+
+Seed a placeholder senior engineer (replace `data/candidate/*.json` with real data):
+
+```bash
+make migrate
+make seed
+```
+
+- `GET /candidate/profile` — grounded profile (`evidence_backed` | `derived` | `unknown`)
+- `GET /candidate/evidence` — atomic claims agents may use
+
+See [docs/candidate-evidence.md](docs/candidate-evidence.md).
+
 ## Configuration
 
 All runtime settings are environment variables (see `.env.example`). Secrets belong in `.env`, which is gitignored.
@@ -66,6 +80,7 @@ DATABASE_URL=postgresql+psycopg://YOUR_USER@localhost:5432/jobsearch
 | `make fmt` | Apply Ruff fixes |
 | `make typecheck` | mypy on `app` |
 | `make migrate` | `alembic upgrade head` |
+| `make seed` | Load/replace candidate JSON into Postgres |
 | `make up` / `make down` | Start/stop Compose Postgres |
 | `make db-check` | Ping the configured database |
 

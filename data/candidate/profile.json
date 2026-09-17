@@ -1,0 +1,135 @@
+{
+  "key": "primary",
+  "name": "Jordan Hale",
+  "target_titles": [
+    "Senior Software Engineer",
+    "Staff Software Engineer",
+    "Senior Backend Engineer"
+  ],
+  "seniority": "senior",
+  "years_experience": 12,
+  "preferred_locations": ["Remote", "San Francisco, CA", "New York, NY"],
+  "remote_preference": "remote",
+  "minimum_compensation": { "amount": 185000, "currency": "USD", "period": "year" },
+  "target_compensation": { "amount": 230000, "currency": "USD", "period": "year" },
+  "employment_preferences": ["full_time"],
+  "industries": ["B2B SaaS", "healthcare", "developer tools"],
+  "preferred_company_stages": ["growth", "late", "public"],
+  "technologies": [
+    "Python",
+    "TypeScript",
+    "Go",
+    "PostgreSQL",
+    "Redis",
+    "Kafka",
+    "Kubernetes",
+    "AWS",
+    "gRPC"
+  ],
+  "domains": [
+    "backend services",
+    "distributed systems",
+    "platform engineering",
+    "healthcare interoperability",
+    "applied AI in product workflows"
+  ],
+  "ai_experience": "Designed and shipped production LLM features for clinical operations, including retrieval-augmented generation over policy documents with evaluation harnesses and human review.",
+  "healthcare_experience": "Built FHIR-oriented integration services used by provider operations, with audit logging and least-privilege access to PHI-adjacent workflows.",
+  "leadership_experience": "Led a backend squad of six, ran design reviews, and mentored engineers through promotion packets without owning a people-manager title.",
+  "summary": "Senior backend and platform engineer who has spent a decade on high-reliability services, with grounded experience in healthcare integrations, applied AI features, and technical leadership.",
+  "field_grounding": {
+    "name": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "target_titles": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "seniority": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["tenure"]
+    },
+    "years_experience": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["tenure"]
+    },
+    "preferred_locations": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "remote_preference": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "minimum_compensation": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "target_compensation": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "employment_preferences": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "industries": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "preferred_company_stages": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["self-reported-profile"]
+    },
+    "technologies": {
+      "provenance": "derived",
+      "evidence_keys": [
+        "distributed-systems",
+        "backend",
+        "healthcare",
+        "ai",
+        "performance",
+        "reliability",
+        "architecture"
+      ],
+      "interpretation_notes": "Union of technologies listed on technical evidence records. Do not treat this list as expertise in uncited tools."
+    },
+    "domains": {
+      "provenance": "derived",
+      "evidence_keys": [
+        "distributed-systems",
+        "backend",
+        "healthcare",
+        "ai",
+        "architecture",
+        "product"
+      ],
+      "interpretation_notes": "Domain labels inferred from evidence categories and claims, not from an independent skills inventory."
+    },
+    "ai_experience": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["ai"]
+    },
+    "healthcare_experience": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["healthcare"]
+    },
+    "leadership_experience": {
+      "provenance": "evidence_backed",
+      "evidence_keys": ["leadership", "mentorship"]
+    },
+    "summary": {
+      "provenance": "derived",
+      "evidence_keys": [
+        "tenure",
+        "distributed-systems",
+        "backend",
+        "healthcare",
+        "ai",
+        "leadership"
+      ],
+      "interpretation_notes": "Narrative synthesis of cited evidence. If a job requires a skill not covered by those records, treat it as unknown."
+    }
+  }
+}

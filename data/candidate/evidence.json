@@ -1,0 +1,164 @@
+[
+  {
+    "key": "self-reported-profile",
+    "category": "self_reported",
+    "claim": "Candidate-stated identity, target roles, location, compensation, and company preferences.",
+    "detailed_description": "Placeholder self-report for the seed profile named Jordan Hale. Replace this record with the real candidate's stated preferences. These are goals and constraints, not proof of skill.",
+    "technologies": [],
+    "measurable_outcomes": [],
+    "source": "self_reported",
+    "confidence": "high",
+    "tags": ["preferences", "placeholder-seed"]
+  },
+  {
+    "key": "tenure",
+    "category": "self_reported",
+    "claim": "About 12 years of professional software engineering experience at senior scope.",
+    "detailed_description": "Resume-style tenure for the placeholder profile. The candidate has operated as a senior engineer: owning services, on-call, and cross-team design. This is not a staff-or-principal claim.",
+    "technologies": [],
+    "measurable_outcomes": ["12 years professional experience"],
+    "source": "resume",
+    "confidence": "high",
+    "tags": ["seniority", "placeholder-seed"]
+  },
+  {
+    "key": "distributed-systems",
+    "category": "distributed_systems",
+    "claim": "Designed multi-service platforms with asynchronous messaging and explicit consistency boundaries.",
+    "detailed_description": "Led the design of an order-processing platform that split monolith workflows into independently deployable services. Introduced outbox publishing to Kafka, idempotent consumers, and a reconciliation job for failed deliveries. Documented consistency expectations per workflow rather than assuming global transactions.",
+    "technologies": ["PostgreSQL", "Kafka", "Go", "gRPC", "Kubernetes"],
+    "measurable_outcomes": [
+      "Cut cross-service incident rate related to duplicate processing by 70% over two quarters",
+      "Reduced p95 checkout completion time from 1.8s to 420ms after removing chatty synchronous calls"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": ["platform", "messaging", "placeholder-seed"]
+  },
+  {
+    "key": "backend",
+    "category": "backend",
+    "claim": "Built and operated production HTTP/gRPC APIs with PostgreSQL as the system of record.",
+    "detailed_description": "Owned customer-facing and internal APIs in Python and Go, including schema migrations, authorization, and pagination. Established request-id propagation, structured logging, and contract tests against OpenAPI/Protobuf definitions.",
+    "technologies": ["Python", "Go", "PostgreSQL", "Redis", "AWS"],
+    "measurable_outcomes": [
+      "Maintained 99.95% monthly availability on a core billing API",
+      "Migrated 40+ endpoints to versioned contracts without a breaking production incident"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": ["apis", "data", "placeholder-seed"]
+  },
+  {
+    "key": "healthcare",
+    "category": "healthcare",
+    "claim": "Shipped FHIR-oriented integration services for provider operations.",
+    "detailed_description": "Implemented inbound and outbound clinical operations interfaces that mapped internal domain events to FHIR resources. Added audit trails, scoped service accounts, and replayable ingestion. Worked with compliance on data-minimization; this seed does not claim a specific license or clinical role.",
+    "technologies": ["Python", "PostgreSQL", "AWS", "FHIR"],
+    "measurable_outcomes": [
+      "Onboarded 3 hospital systems onto a shared integration adapter",
+      "Reduced manual chart-reconciliation tickets by 45% after automated matching went live"
+    ],
+    "source": "resume",
+    "confidence": "medium",
+    "tags": ["fhir", "integrations", "placeholder-seed"]
+  },
+  {
+    "key": "ai",
+    "category": "ai",
+    "claim": "Shipped production LLM features with retrieval, evaluation, and human review.",
+    "detailed_description": "Built an internal assistant that answers policy questions over a curated corpus. Chunked documents, stored embeddings, and required citation of source passages. Added offline eval sets and a reviewer queue for low-confidence answers. This is applied product AI, not foundational model research.",
+    "technologies": ["Python", "PostgreSQL", "TypeScript", "AWS"],
+    "measurable_outcomes": [
+      "Deflected 30% of tier-1 policy questions from a 12-person operations team",
+      "Kept hallucination rate under 2% on a 200-item gold evaluation set before launch"
+    ],
+    "source": "portfolio",
+    "confidence": "high",
+    "tags": ["llm", "rag", "placeholder-seed"]
+  },
+  {
+    "key": "leadership",
+    "category": "leadership",
+    "claim": "Led a backend squad of six as a technical lead without a people-manager title.",
+    "detailed_description": "Set quarterly technical goals, facilitated design reviews, sequenced delivery with product, and represented the team in incident reviews. Hired via interview loops and wrote promotion evidence for two engineers. Not a Head of Engineering or VP claim.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Team delivered 4 of 5 committed platform epics in two consecutive halves",
+      "Two mentees promoted from mid-level to senior"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": ["tech-lead", "placeholder-seed"]
+  },
+  {
+    "key": "performance",
+    "category": "performance",
+    "claim": "Diagnosed and removed latency from hot API and database paths.",
+    "detailed_description": "Used tracing and EXPLAIN analysis to find N+1 query patterns and lock contention on account updates. Introduced covering indexes, batch endpoints, and a Redis read-through cache with explicit TTLs.",
+    "technologies": ["PostgreSQL", "Redis", "Python", "AWS"],
+    "measurable_outcomes": [
+      "Dropped p99 for the account-read endpoint from 900ms to 120ms",
+      "Reduced primary database CPU from 80% to 35% at peak"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": ["latency", "databases", "placeholder-seed"]
+  },
+  {
+    "key": "reliability",
+    "category": "reliability",
+    "claim": "Owned on-call and raised service reliability through SLOs and load shedding.",
+    "detailed_description": "Defined SLIs for a payments-adjacent API, added dashboards and error-budget policy, and implemented concurrency limits plus retry budgets on downstream calls. Wrote runbooks used by a follow-the-sun rotation.",
+    "technologies": ["Kubernetes", "AWS", "PostgreSQL", "Go"],
+    "measurable_outcomes": [
+      "Reduced pages-per-week from 11 to 3 over two quarters",
+      "Zero Sev-1 incidents in the two quarters after load shedding shipped"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": ["sre", "oncall", "placeholder-seed"]
+  },
+  {
+    "key": "architecture",
+    "category": "architecture",
+    "claim": "Led a strangler-fig migration from a monolith module to an extracted billing service.",
+    "detailed_description": "Wrote the RFC, dual-wrote critical tables, and flipped read traffic behind a feature flag. Kept a rollback path for six weeks. Coordinated with finance on invoice correctness during cutover.",
+    "technologies": ["Python", "PostgreSQL", "Kafka", "Kubernetes"],
+    "measurable_outcomes": [
+      "Completed cutover in 14 weeks with no invoice-mismatch Sev-1",
+      "Enabled independent deploys that cut billing-service release lead time from weekly to daily"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": ["migrations", "rfc", "placeholder-seed"]
+  },
+  {
+    "key": "product",
+    "category": "product",
+    "claim": "Partnered with product and design to scope platform work around user-visible outcomes.",
+    "detailed_description": "Turned a vague 'make onboarding faster' goal into an API and admin-tool slice, including event instrumentation used by product analytics. Pushed back on a rewrite when a staged extraction met the deadline.",
+    "technologies": ["TypeScript", "Python"],
+    "measurable_outcomes": [
+      "Activation time for new workspaces fell from 3 days to same-day for 80% of signups",
+      "Avoided a two-quarter rewrite by delivering an incremental extraction"
+    ],
+    "source": "resume",
+    "confidence": "medium",
+    "tags": ["collaboration", "placeholder-seed"]
+  },
+  {
+    "key": "mentorship",
+    "category": "mentorship",
+    "claim": "Mentored engineers through design, on-call, and promotion writing.",
+    "detailed_description": "Ran a weekly review clinic, pair-debugged production issues, and coached written design docs. Mentorship evidence is limited to IC coaching; there is no claim of org-wide talent programs.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Four mentees reached independent on-call within a quarter",
+      "Co-authored two successful senior promotion packets"
+    ],
+    "source": "reference",
+    "confidence": "medium",
+    "tags": ["coaching", "placeholder-seed"]
+  }
+]
