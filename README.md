@@ -60,6 +60,7 @@ See [docs/candidate-evidence.md](docs/candidate-evidence.md).
 - `POST /jobs/{id}/hard-filter` — deterministic knock-out rules vs the primary candidate. Unlisted salary does not reject the job (`salary_unknown: true`). See [docs/scoring.md](docs/scoring.md).
 - `POST /jobs/{id}/evaluate` — default `evaluation_mode=live_llm`. Provenance fields distinguish live, `offline_rubric`, and `mock`. Failed live calls error instead of storing an offline score as live. See [docs/agents.md](docs/agents.md).
 - `POST /evaluation/batch` — evaluate many unevaluated jobs in-process (hard filters, then agent). Optional `source`, date range, `limit`, `dry_run`, `reevaluate`, `concurrency`.
+- Review UI at `/` — dashboard, job queue, and detail. Human Approve/Review/Reject only; applications are not submitted.
 
 Duplicate `source` + `source_job_id` on `POST /jobs` returns HTTP 409. Sync uses upsert instead. Duplicate descriptions share a `content_hash` and set `is_duplicate_description`.
 

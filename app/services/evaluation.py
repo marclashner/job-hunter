@@ -324,3 +324,27 @@ def _to_read(
         supporting_evidence_ids=evaluation.supporting_evidence_ids,
         reasoning=evaluation.reasoning,
     )
+
+
+def evaluation_record_to_read(record: JobEvaluationRecord) -> JobEvaluationRead:
+    hard_filter = HardFilterResult.model_validate(record.hard_filter)
+    supporting = [uuid.UUID(item) for item in record.supporting_evidence_ids]
+    evaluation = JobEvaluation.model_validate(
+        {
+            "overall_score": record.overall_score,
+            "technical_fit": record.technical_fit,
+            "domain_fit": record.domain_fit,
+            "product_fit": record.product_fit,
+            "ai_relevance": record.ai_relevance,
+            "seniority_fit": record.seniority_fit,
+            "company_interest_fit": record.company_interest_fit,
+            "evidence_strength": record.evidence_strength,
+            "recommendation": record.recommendation,
+            "strengths": list(record.strengths),
+            "concerns": list(record.concerns),
+            "missing_information": list(record.missing_information),
+            "supporting_evidence_ids": supporting,
+            "reasoning": record.reasoning,
+        }
+    )
+    return _to_read(record, evaluation, hard_filter)

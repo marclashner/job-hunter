@@ -2,13 +2,18 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app import __version__
 from app.api.router import api_router
 from app.config import get_settings
 from app.db import Database
+
+WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
 
 @asynccontextmanager
@@ -30,6 +35,13 @@ def create_app() -> FastAPI:
         debug=settings.debug,
     )
     application.include_router(api_router)
+    if WEB_DIR.is_dir():
+        application.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
+
+        @application.get("/", include_in_schema=False)
+        def review_dashboard() -> FileResponse:
+            return FileResponse(WEB_DIR / "index.html")
+
     return application
 
 

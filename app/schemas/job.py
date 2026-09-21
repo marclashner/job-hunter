@@ -8,7 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from app.models.enums import EmploymentType, JobSource, RemotePolicy, Seniority
+from app.models.enums import EmploymentType, HumanDecision, JobSource, RemotePolicy, Seniority
 
 
 class JobCreate(BaseModel):
@@ -74,6 +74,8 @@ class JobRead(BaseModel):
     content_hash: str
     is_duplicate_description: bool
     duplicate_description_job_ids: list[UUID]
+    human_decision: HumanDecision | None = None
+    human_decided_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -42,6 +42,7 @@ Ingested listings live in `jobs`. `source` + `source_job_id` is unique. `raw_dat
 - `POST /jobs/{id}/hard-filter` — deterministic eligibility vs the primary candidate. Missing salary/location/policy does not fail the job. See [scoring.md](scoring.md).
 - `POST /jobs/{id}/evaluate` — `JobEvaluationAgent` by default (`evaluation_mode=live_llm`). Persists provenance (`evaluation_mode`, `model`, `provider`, `llm_request_id`, `fallback_reason`). Failed live calls error; they do not store an offline score as live. `offline_rubric` and `mock` only when requested.
 - `POST /evaluation/batch` — in-process batch with the same `evaluation_mode` rules.
+- `GET /review/summary`, `GET /review/jobs`, `GET /review/jobs/{id}`, `POST /review/jobs/{id}/decision` — human review dashboard. Approve/Review/Reject do **not** submit applications. The UI is served at `/`.
 
 ## Testing
 

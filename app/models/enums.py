@@ -114,6 +114,14 @@ class EvaluationMode(StrEnum):
     MOCK = "mock"
 
 
+class HumanDecision(StrEnum):
+    """Human review of an evaluated listing. Not an application submission."""
+
+    APPROVE = "approve"
+    REVIEW = "review"
+    REJECT = "reject"
+
+
 PROFILE_GROUNDABLE_FIELDS: tuple[str, ...] = (
     "name",
     "target_titles",

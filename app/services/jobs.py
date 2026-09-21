@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models.enums import EmploymentType, JobSource, RemotePolicy, Seniority
+from app.models.enums import EmploymentType, HumanDecision, JobSource, RemotePolicy, Seniority
 from app.models.job import Job
 from app.repositories.jobs import JobListFilters, JobRepository
 from app.schemas.job import JobCreate, JobListResponse, JobRead
@@ -162,6 +162,8 @@ def _to_read(job: Job, duplicate_ids: list[uuid.UUID]) -> JobRead:
         content_hash=job.content_hash,
         is_duplicate_description=bool(duplicate_ids),
         duplicate_description_job_ids=duplicate_ids,
+        human_decision=HumanDecision(job.human_decision) if job.human_decision else None,
+        human_decided_at=job.human_decided_at,
         created_at=job.created_at,
         updated_at=job.updated_at,
     )

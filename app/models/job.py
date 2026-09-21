@@ -51,6 +51,10 @@ class Job(Base):
     )
     raw_data: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    human_decision: Mapped[str | None] = mapped_column(String(16), nullable=True, index=True)
+    human_decided_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
