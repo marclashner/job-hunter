@@ -507,7 +507,7 @@
           "review"
         ],
         "summary": "Review job queue",
-        "description": "Evaluated jobs for human review. Filter by recommendation, score, source, remote, date.",
+        "description": "Evaluated jobs for human review. Defaults to US-eligible locations.",
         "operationId": "get_review_queue_review_jobs_get",
         "parameters": [
           {
@@ -591,6 +591,16 @@
                 }
               ],
               "title": "Discovered"
+            }
+          },
+          {
+            "name": "us_eligible",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Us Eligible"
             }
           },
           {
@@ -1912,6 +1922,34 @@
             ],
             "title": "Salary Currency"
           },
+          "salary_source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SalarySource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "salary_quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Quote"
+          },
+          "eligible_countries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Eligible Countries"
+          },
           "job_url": {
             "anyOf": [
               {
@@ -2233,6 +2271,34 @@
             "type": "string",
             "title": "Compensation"
           },
+          "salary_source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SalarySource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "salary_quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Quote"
+          },
+          "eligible_countries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Eligible Countries"
+          },
           "score": {
             "anyOf": [
               {
@@ -2315,6 +2381,7 @@
           "title",
           "location",
           "compensation",
+          "eligible_countries",
           "score",
           "recommendation",
           "top_strengths",
@@ -2457,6 +2524,34 @@
               }
             ],
             "title": "Salary Currency"
+          },
+          "salary_source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SalarySource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "salary_quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Salary Quote"
+          },
+          "eligible_countries": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Eligible Countries"
           },
           "job_url": {
             "anyOf": [
@@ -2789,6 +2884,16 @@
           "needing_review"
         ],
         "title": "ReviewSummary"
+      },
+      "SalarySource": {
+        "type": "string",
+        "enum": [
+          "structured_api",
+          "regex",
+          "llm"
+        ],
+        "title": "SalarySource",
+        "description": "Where salary_min/max on a job came from."
       },
       "Seniority": {
         "type": "string",

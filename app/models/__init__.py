@@ -16,6 +16,7 @@ from app.models.enums import (
     Recommendation,
     RemotePolicy,
     RemotePreference,
+    SalarySource,
     Seniority,
 )
 from app.models.evaluation import JobEvaluationRecord
@@ -40,5 +41,6 @@ __all__ = [
     "Recommendation",
     "RemotePolicy",
     "RemotePreference",
+    "SalarySource",
     "Seniority",
 ]

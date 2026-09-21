@@ -7,7 +7,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from app.models.enums import HumanDecision, JobSource, Recommendation, RemotePolicy
+from app.models.enums import HumanDecision, JobSource, Recommendation, RemotePolicy, SalarySource
 from app.models.evaluation import JobEvaluationRecord
 from app.models.job import Job
 from app.repositories.evaluations import EvaluationRepository
@@ -103,6 +103,9 @@ def _queue_item(job: Job, evaluation: JobEvaluationRecord | None) -> JobQueueIte
         title=job.title,
         location=job.location,
         compensation=_compensation(job),
+        salary_source=SalarySource(job.salary_source) if job.salary_source else None,
+        salary_quote=job.salary_quote,
+        eligible_countries=list(job.eligible_countries or []),
         score=None if evaluation is None else evaluation.overall_score,
         recommendation=None if evaluation is None else Recommendation(evaluation.recommendation),
         top_strengths=[] if evaluation is None else list(evaluation.strengths)[:3],

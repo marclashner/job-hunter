@@ -8,7 +8,14 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from app.models.enums import EmploymentType, HumanDecision, JobSource, RemotePolicy, Seniority
+from app.models.enums import (
+    EmploymentType,
+    HumanDecision,
+    JobSource,
+    RemotePolicy,
+    SalarySource,
+    Seniority,
+)
 
 
 class JobCreate(BaseModel):
@@ -24,6 +31,9 @@ class JobCreate(BaseModel):
     salary_min: int | None = Field(default=None, ge=0)
     salary_max: int | None = Field(default=None, ge=0)
     salary_currency: str | None = Field(default=None, min_length=3, max_length=3)
+    salary_source: SalarySource | None = None
+    salary_quote: str | None = None
+    eligible_countries: list[str] = Field(default_factory=list)
     job_url: str | None = Field(default=None, max_length=2048)
     application_url: str | None = Field(default=None, max_length=2048)
     department: str | None = Field(default=None, max_length=255)
@@ -65,6 +75,9 @@ class JobRead(BaseModel):
     salary_min: int | None
     salary_max: int | None
     salary_currency: str | None
+    salary_source: SalarySource | None = None
+    salary_quote: str | None = None
+    eligible_countries: list[str] = Field(default_factory=list)
     job_url: str | None
     application_url: str | None
     department: str | None

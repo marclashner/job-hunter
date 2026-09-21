@@ -181,6 +181,34 @@ def test_onsite_unlisted_city_fails_location() -> None:
     assert HardFilterRule.UNACCEPTABLE_LOCATION.value in result.failed_rules
 
 
+def test_remote_uk_fails_for_us_candidate() -> None:
+    result = evaluate_hard_filters(
+        _job(location="Remote, United Kingdom", remote_policy=RemotePolicy.REMOTE),
+        _candidate(),
+    )
+    assert HardFilterRule.UNACCEPTABLE_LOCATION.value in result.failed_rules
+
+
+def test_remote_canada_and_us_passes_location() -> None:
+    result = evaluate_hard_filters(
+        _job(
+            location="Remote, Canada; Remote, United States",
+            remote_policy=RemotePolicy.REMOTE,
+        ),
+        _candidate(),
+    )
+    assert HardFilterRule.UNACCEPTABLE_LOCATION.value not in result.failed_rules
+
+
+def test_bare_remote_does_not_fail_location() -> None:
+    result = evaluate_hard_filters(
+        _job(location="Remote", remote_policy=RemotePolicy.REMOTE, eligible_countries=[]),
+        _candidate(),
+    )
+    assert HardFilterRule.UNACCEPTABLE_LOCATION.value not in result.failed_rules
+    assert "job_eligible_geo" in result.missing_information
+
+
 def test_staff_role_meets_senior_minimum() -> None:
     result = evaluate_hard_filters(_job(seniority=Seniority.STAFF), _candidate())
     assert HardFilterRule.BELOW_MINIMUM_SENIORITY.value not in result.failed_rules

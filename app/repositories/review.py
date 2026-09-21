@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Select, case, func, select
+from sqlalchemy import Select, case, func, or_, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import Subquery
 
@@ -23,6 +23,7 @@ class ReviewQueueFilters:
     remote_policy: RemotePolicy | None = None
     discovered_after: datetime | None = None
     discovered_before: datetime | None = None
+    us_eligible: bool = False
 
 
 class ReviewRepository:
@@ -125,4 +126,11 @@ def _apply_queue_filters(statement: Select[Any], filters: ReviewQueueFilters) ->
         )
     if filters.minimum_score is not None:
         statement = statement.where(JobEvaluationRecord.overall_score >= filters.minimum_score)
+    if filters.us_eligible:
+        statement = statement.where(
+            or_(
+                func.jsonb_array_length(Job.eligible_countries) == 0,
+                Job.eligible_countries.contains(["US"]),
+            )
+        )
     return statement

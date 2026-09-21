@@ -42,10 +42,11 @@ def get_review_queue(
     source: Annotated[JobSource | None, Query()] = None,
     remote_policy: Annotated[RemotePolicy | None, Query()] = None,
     discovered: Annotated[datetime | None, Query()] = None,
+    us_eligible: Annotated[bool, Query()] = True,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> JobQueueResponse:
-    """Evaluated jobs for human review. Filter by recommendation, score, source, remote, date."""
+    """Evaluated jobs for human review. Defaults to US-eligible locations."""
     discovered_after = None
     discovered_before = None
     if discovered is not None:
@@ -57,6 +58,7 @@ def get_review_queue(
         remote_policy=remote_policy,
         discovered_after=discovered_after,
         discovered_before=discovered_before,
+        us_eligible=us_eligible,
     )
     return list_review_queue(session, filters, limit=limit, offset=offset)
 

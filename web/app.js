@@ -82,6 +82,16 @@ function queryFromForm(form) {
   return params;
 }
 
+function _compensationFromJob(job) {
+  const currency = job.salary_currency || "USD";
+  if (job.salary_min == null && job.salary_max == null) return "Unlisted";
+  if (job.salary_min != null && job.salary_max != null) {
+    return `${Number(job.salary_min).toLocaleString()}-${Number(job.salary_max).toLocaleString()} ${currency}`;
+  }
+  if (job.salary_min != null) return `${Number(job.salary_min).toLocaleString()}+ ${currency}`;
+  return `up to ${Number(job.salary_max).toLocaleString()} ${currency}`;
+}
+
 async function renderDashboard() {
   app.innerHTML = `<p class="muted">Loading dashboard…</p>`;
   const params = new URLSearchParams(location.hash.split("?")[1] || "");
@@ -128,6 +138,12 @@ async function renderDashboard() {
             <option value="onsite">onsite</option>
           </select>
         </label>
+        <label>Work location
+          <select name="us_eligible">
+            <option value="true">US eligible</option>
+            <option value="false">All geos</option>
+          </select>
+        </label>
         <label>Date discovered
           <input name="discovered" type="date" />
         </label>
@@ -159,8 +175,8 @@ async function renderDashboard() {
                     <span class="company">${esc(item.company)}</span>
                   </a>
                 </td>
-                <td>${esc(item.location || "—")}<div class="company">${esc(item.remote_policy || "")}</div></td>
-                <td>${esc(item.compensation)}</td>
+                <td>${esc(item.location || "—")}<div class="company">${esc((item.eligible_countries || []).join(", ") || item.remote_policy || "")}</div></td>
+                <td>${esc(item.compensation)}${item.salary_source ? `<div class="company">${esc(item.salary_source)}</div>` : ""}</td>
                 <td>${item.score == null ? "—" : item.score}</td>
                 <td>${pill(item.recommendation)}</td>
                 <td>${item.top_strengths.map((row) => esc(row)).join("<br>") || "—"}</td>
@@ -177,6 +193,7 @@ async function renderDashboard() {
       </div>
     `;
     const form = document.getElementById("filters");
+    if (!params.has("us_eligible")) form.elements.us_eligible.value = "true";
     for (const [key, value] of params.entries()) {
       if (form.elements[key]) form.elements[key].value = value;
     }
@@ -201,9 +218,12 @@ async function renderDetail(jobId) {
       <div class="detail">
         <section class="card">
           <h2>${esc(detail.job.title)}</h2>
-          <p class="muted">${esc(detail.job.company)} · ${esc(detail.job.location || "Location unknown")} · ${esc(detail.job.remote_policy || "")}</p>
+          <p class="muted">${esc(detail.job.company)} · ${esc(detail.job.location || "Location unknown")} · ${esc(detail.job.remote_policy || "")} · ${(detail.job.eligible_countries || []).join(", ") || "geo unknown"}</p>
           <p>${pill(evaluation?.recommendation)} ${evaluation ? `score ${evaluation.overall_score}` : ""} ${detail.human_decision ? `· human ${esc(detail.human_decision)}` : ""}</p>
           ${decisionButtons(detail.job.id, detail.human_decision, evaluation?.recommendation)}
+          <h3>Compensation</h3>
+          <p>${esc(_compensationFromJob(detail.job))} ${detail.job.salary_source ? `<span class="muted">(${esc(detail.job.salary_source)})</span>` : ""}</p>
+          ${detail.job.salary_quote ? `<pre>${esc(detail.job.salary_quote)}</pre>` : ""}
           <h3>Description</h3>
           <pre>${esc(detail.job.description)}</pre>
           <h3>Application URL</h3>

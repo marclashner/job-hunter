@@ -8,11 +8,19 @@ from datetime import UTC, datetime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models.enums import EmploymentType, HumanDecision, JobSource, RemotePolicy, Seniority
+from app.models.enums import (
+    EmploymentType,
+    HumanDecision,
+    JobSource,
+    RemotePolicy,
+    SalarySource,
+    Seniority,
+)
 from app.models.job import Job
 from app.repositories.jobs import JobListFilters, JobRepository
 from app.schemas.job import JobCreate, JobListResponse, JobRead
 from app.services.job_hashing import job_content_hash
+from app.services.listing_enrichment import enrich_job_create
 
 
 class DuplicateJobError(ValueError):
@@ -24,6 +32,7 @@ class JobNotFoundError(LookupError):
 
 
 def create_job(session: Session, payload: JobCreate) -> JobRead:
+    payload = _enriched(payload)
     repo = JobRepository(session)
     existing = repo.get_by_source_identity(payload.source.value, payload.source_job_id)
     if existing is not None:
@@ -47,6 +56,7 @@ def upsert_job(session: Session, payload: JobCreate) -> tuple[JobRead, str]:
     repo = JobRepository(session)
     existing = repo.get_by_source_identity(payload.source.value, payload.source_job_id)
     if existing is None:
+        payload = _enriched(payload)
         job = _new_job(payload)
         try:
             repo.add(job)
@@ -65,6 +75,7 @@ def upsert_job(session: Session, payload: JobCreate) -> tuple[JobRead, str]:
         duplicates = repo.ids_with_content_hash(job.content_hash, exclude_id=job.id)
         return _to_read(job, duplicates), "inserted"
 
+    payload = _enriched(payload)
     _apply_payload(existing, payload, preserve_discovered_at=True)
     session.commit()
     session.refresh(existing)
@@ -91,6 +102,9 @@ def _apply_payload(job: Job, payload: JobCreate, *, preserve_discovered_at: bool
     job.salary_min = payload.salary_min
     job.salary_max = payload.salary_max
     job.salary_currency = payload.salary_currency
+    job.salary_source = payload.salary_source.value if payload.salary_source else None
+    job.salary_quote = payload.salary_quote
+    job.eligible_countries = list(payload.eligible_countries)
     job.job_url = payload.job_url
     job.application_url = payload.application_url
     job.department = payload.department
@@ -153,6 +167,9 @@ def _to_read(job: Job, duplicate_ids: list[uuid.UUID]) -> JobRead:
         salary_min=job.salary_min,
         salary_max=job.salary_max,
         salary_currency=job.salary_currency,
+        salary_source=SalarySource(job.salary_source) if job.salary_source else None,
+        salary_quote=job.salary_quote,
+        eligible_countries=list(job.eligible_countries or []),
         job_url=job.job_url,
         application_url=job.application_url,
         department=job.department,
@@ -167,3 +184,7 @@ def _to_read(job: Job, duplicate_ids: list[uuid.UUID]) -> JobRead:
         created_at=job.created_at,
         updated_at=job.updated_at,
     )
+
+
+def _enriched(payload: JobCreate) -> JobCreate:
+    return enrich_job_create(payload)

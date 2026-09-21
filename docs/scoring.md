@@ -8,6 +8,8 @@ Hard filters are the first, deterministic gate. They decide whether a listing is
 
 An explicit `evaluation_mode=offline_rubric` on `/jobs/{id}/evaluate` or `/evaluation/batch` runs a deterministic token-overlap rubric. It is never used automatically when a live OpenAI call fails.
 
+Salary and work-eligibility are filled **before** hard filters: regex (and optionally an LLM extractor) writes `salary_*` / `eligible_countries`. Hard filters then use those structured fields. Unlisted salary still does not fail.
+
 ## Result contract
 
 | Field | Meaning |
@@ -25,7 +27,7 @@ An explicit `evaluation_mode=offline_rubric` on `/jobs/{id}/evaluate` or `/evalu
 These rules use structured fields and closed keyword lists only:
 
 - **Unacceptable onsite requirement** — candidate `remote_preference=remote` and job `remote_policy` is `onsite` or `hybrid`. Unknown policy does not fail.
-- **Unacceptable location** — job is onsite/hybrid and its `location` does not match `preferred_locations`. Remote jobs skip this rule. Blank location does not fail.
+- **Unacceptable location** — parsed eligible countries (from `location`) do not overlap the candidate's preferred countries. Remote jobs are included: `Remote, United Kingdom` fails a US-remote candidate. `Remote, Canada; Remote, United States` passes. Bare `Remote` with no country is missing information, not a failure. Onsite/hybrid still fail the onsite rule separately when the candidate is remote-only.
 - **Minimum seniority** — job seniority rank is below the candidate's stored seniority. Unknown job seniority does not fail.
 - **Unacceptable employment type** — job type is set and is not in `employment_preferences`. Empty preferences disable the rule.
 - **Minimum compensation** — only when a salary number exists. Fail if `salary_max` is present and below the annualized minimum. If only `salary_min` is present and it is below the floor, emit `salary_ceiling_unknown` and do not fail. Currency mismatch is a warning, not a failure. Unlisted salary never fails.
@@ -40,7 +42,7 @@ Do **not** put these in hard filters:
 
 - Overall fit, ranking, or a numeric score
 - Whether a long description *really* means remote, hybrid, or onsite when `remote_policy` is missing
-- Parsing compensation, visas, or clearance out of prose (`$120k` in the title is ignored unless `salary_*` is set)
+- Visa or clearance language that is not captured in eligible countries
 - Industry when it is only implied (culture, customer stories, “fintech-like”)
 - Whether “Staff Engineer — Payments” is a good next role versus “Senior Backend Engineer”
 - Skill-by-skill evidence matching, stack depth, or healthcare/AI claim strength

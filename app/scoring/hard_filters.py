@@ -13,6 +13,7 @@ from app.models.enums import EmploymentType, RemotePolicy, RemotePreference, Sen
 from app.models.job import Job
 from app.schemas.candidate import Compensation
 from app.schemas.job import JobRead
+from app.sources.geo import parse_eligible_countries, preferred_country_codes
 
 _WORD = re.compile(r"[a-z0-9+]+")
 _SENIORITY_RANK: dict[Seniority, int] = {
@@ -88,6 +89,7 @@ class JobFilterInput(BaseModel):
     salary_min: int | None = None
     salary_max: int | None = None
     salary_currency: str | None = None
+    eligible_countries: list[str] = Field(default_factory=list)
 
     @classmethod
     def from_job(cls, job: Job | JobRead | JobFilterInput) -> JobFilterInput:
@@ -106,6 +108,7 @@ class JobFilterInput(BaseModel):
                 salary_min=job.salary_min,
                 salary_max=job.salary_max,
                 salary_currency=job.salary_currency,
+                eligible_countries=list(job.eligible_countries or []),
             )
         return cls(
             title=job.title,
@@ -119,6 +122,7 @@ class JobFilterInput(BaseModel):
             salary_min=job.salary_min,
             salary_max=job.salary_max,
             salary_currency=job.salary_currency,
+            eligible_countries=list(getattr(job, "eligible_countries", None) or []),
         )
 
 
@@ -224,10 +228,20 @@ def _apply_location(
         warnings.append("contradictory_location_information")
     if not candidate.preferred_locations:
         return
+    countries = list(job.eligible_countries) or parse_eligible_countries(location)
+    wanted = preferred_country_codes(candidate.preferred_locations)
+    if wanted:
+        if not countries:
+            if not location:
+                missing.append("job_location")
+            missing.append("job_eligible_geo")
+            return
+        if wanted.isdisjoint(set(countries)):
+            failed.append(HardFilterRule.UNACCEPTABLE_LOCATION.value)
+            return
+        return
     if not location:
         missing.append("job_location")
-        return
-    if job.remote_policy is RemotePolicy.REMOTE:
         return
     if job.remote_policy is None or job.remote_policy is RemotePolicy.UNKNOWN:
         if "job_remote_policy" not in missing:

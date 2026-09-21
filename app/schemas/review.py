@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.models.enums import HumanDecision, JobSource, Recommendation, RemotePolicy
+from app.models.enums import HumanDecision, JobSource, Recommendation, RemotePolicy, SalarySource
 from app.schemas.candidate import CandidateEvidenceRead
 from app.schemas.evaluation import JobEvaluationRead
 from app.schemas.job import JobRead
@@ -30,6 +30,9 @@ class JobQueueItem(BaseModel):
     title: str
     location: str | None
     compensation: str
+    salary_source: SalarySource | None = None
+    salary_quote: str | None = None
+    eligible_countries: list[str]
     score: int | None
     recommendation: Recommendation | None
     top_strengths: list[str]

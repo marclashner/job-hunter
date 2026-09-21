@@ -15,6 +15,9 @@ def test_html_to_text_strips_tags_not_scraping() -> None:
     assert "Build" in text
     assert "x()" not in text
     assert "<p>" not in text
+    leftover = html_to_text("Pay Transparency: </strong>The base pay for this role is: $198,720")
+    assert "<" not in leftover
+    assert "$198,720" in leftover
 
 
 def test_normalize_maps_greenhouse_json_to_job_create() -> None:

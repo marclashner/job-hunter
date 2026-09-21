@@ -122,6 +122,14 @@ class HumanDecision(StrEnum):
     REJECT = "reject"
 
 
+class SalarySource(StrEnum):
+    """Where salary_min/max on a job came from."""
+
+    STRUCTURED_API = "structured_api"
+    REGEX = "regex"
+    LLM = "llm"
+
+
 PROFILE_GROUNDABLE_FIELDS: tuple[str, ...] = (
     "name",
     "target_titles",
