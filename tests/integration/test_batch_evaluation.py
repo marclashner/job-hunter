@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from app.agents.job_evaluation import (
     EvaluationAgentError,
+    EvaluationProvenance,
     EvaluationRunResult,
     EvaluationUsage,
     JobEvaluationContext,
@@ -17,7 +18,7 @@ from app.agents.job_evaluation import (
 from app.api.deps import get_evaluation_runner
 from app.db import Database
 from app.main import app
-from app.models.enums import Recommendation
+from app.models.enums import EvaluationMode, Recommendation
 from app.repositories.evaluations import EvaluationRepository
 from app.schemas.evaluation import JobEvaluation
 from app.services.candidate import replace_from_seed
@@ -82,6 +83,7 @@ def _batch_payload(
         "source": "manual",
         "concurrency": 1,
         "limit": 20,
+        "evaluation_mode": "mock",
         **_job_scope(client, job_ids),
     }
     payload.update(overrides)
@@ -189,7 +191,11 @@ def test_batch_hard_filters_before_agent_and_persists_reject(database: Database)
                 stored = EvaluationRepository(session).latest_for_job(UUID(job_id))
                 assert stored is not None
                 assert stored.recommendation == "reject"
-                assert stored.model == "hard-filter"
+                assert stored.evaluation_mode == "offline_rubric"
+                assert stored.model is None
+                assert stored.provider == "hard_filter"
+                assert stored.llm_request_id is None
+                assert stored.fallback_reason is None
             finally:
                 session.close()
     finally:
@@ -202,14 +208,21 @@ def test_batch_continues_when_one_job_fails(database: Database) -> None:
     fail_token = f"FAILAGENT-{uuid4().hex[:8]}"
 
     class PartialFailureRunner:
+        evaluation_mode = EvaluationMode.MOCK
         calls = 0
 
-        def evaluate(self, user_input: str, context: JobEvaluationContext) -> JobEvaluation:
+        def evaluate(self, user_input: str, context: JobEvaluationContext) -> EvaluationRunResult:
             del context
             self.calls += 1
             if fail_token in user_input:
                 raise EvaluationAgentError("forced failure")
-            return _review_output()
+            return EvaluationRunResult(
+                evaluation=_review_output(),
+                provenance=EvaluationProvenance(
+                    evaluation_mode=EvaluationMode.MOCK,
+                    provider="stub",
+                ),
+            )
 
     runner = PartialFailureRunner()
     app.dependency_overrides[get_evaluation_runner] = lambda: runner
@@ -273,6 +286,8 @@ def test_batch_respects_limit_and_records_usage(database: Database) -> None:
     _seed_profile(database)
 
     class UsageRunner:
+        evaluation_mode = EvaluationMode.MOCK
+
         def evaluate(self, user_input: str, context: JobEvaluationContext) -> EvaluationRunResult:
             del user_input, context
             return EvaluationRunResult(
@@ -284,6 +299,10 @@ def test_batch_respects_limit_and_records_usage(database: Database) -> None:
                     requests=1,
                     estimated_cost_usd=0.000027,
                     raw={"input_tokens": 100, "output_tokens": 20},
+                ),
+                provenance=EvaluationProvenance(
+                    evaluation_mode=EvaluationMode.MOCK,
+                    provider="stub",
                 ),
             )
 
@@ -321,6 +340,7 @@ def test_batch_date_range_filters_discovered_jobs(database: Database) -> None:
                 json={
                     "source": "manual",
                     "concurrency": 1,
+                    "evaluation_mode": "mock",
                     "discovered_after": (datetime.now(UTC) + timedelta(days=365)).isoformat(),
                 },
             )

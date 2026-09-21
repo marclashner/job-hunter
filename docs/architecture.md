@@ -40,8 +40,8 @@ Ingested listings live in `jobs`. `source` + `source_job_id` is unique. `raw_dat
 - `POST /sources/greenhouse/{board_token}/sync` — pull the public Greenhouse Job Board JSON API, normalize, and upsert. Malformed rows are skipped. Repeating the sync updates existing rows instead of duplicating them.
 - `POST /sources/lever/{site}/sync` — same sync pipeline against Lever's public postings JSON API, including pagination.
 - `POST /jobs/{id}/hard-filter` — deterministic eligibility vs the primary candidate. Missing salary/location/policy does not fail the job. See [scoring.md](scoring.md).
-- `POST /jobs/{id}/evaluate` — `JobEvaluationAgent` (OpenAI Agents SDK). Persists a grounded `JobEvaluation`. Requires `OPENAI_API_KEY` unless a test runner is injected.
-- `POST /evaluation/batch` — in-process batch: unevaluated jobs (optional `source`, `discovered_after`/`discovered_before`, `limit`), hard-filter discard, agent, persist. Supports `dry_run`, `reevaluate`, and `concurrency`. No distributed queue.
+- `POST /jobs/{id}/evaluate` — `JobEvaluationAgent` by default (`evaluation_mode=live_llm`). Persists provenance (`evaluation_mode`, `model`, `provider`, `llm_request_id`, `fallback_reason`). Failed live calls error; they do not store an offline score as live. `offline_rubric` and `mock` only when requested.
+- `POST /evaluation/batch` — in-process batch with the same `evaluation_mode` rules.
 
 ## Testing
 

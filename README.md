@@ -58,7 +58,7 @@ See [docs/candidate-evidence.md](docs/candidate-evidence.md).
 - `POST /sources/greenhouse/{board_token}/sync` — Greenhouse Job Board JSON API (not HTML scraping). Upserts by `source` + `source_job_id`.
 - `POST /sources/lever/{site}/sync` — Lever postings JSON API. Same upsert rules.
 - `POST /jobs/{id}/hard-filter` — deterministic knock-out rules vs the primary candidate. Unlisted salary does not reject the job (`salary_unknown: true`). See [docs/scoring.md](docs/scoring.md).
-- `POST /jobs/{id}/evaluate` — JobEvaluationAgent. Structured `JobEvaluation`, evidence citations required, result stored in `job_evaluations`. See [docs/agents.md](docs/agents.md).
+- `POST /jobs/{id}/evaluate` — default `evaluation_mode=live_llm`. Provenance fields distinguish live, `offline_rubric`, and `mock`. Failed live calls error instead of storing an offline score as live. See [docs/agents.md](docs/agents.md).
 - `POST /evaluation/batch` — evaluate many unevaluated jobs in-process (hard filters, then agent). Optional `source`, date range, `limit`, `dry_run`, `reevaluate`, `concurrency`.
 
 Duplicate `source` + `source_job_id` on `POST /jobs` returns HTTP 409. Sync uses upsert instead. Duplicate descriptions share a `content_hash` and set `is_duplicate_description`.

@@ -2,7 +2,19 @@
 
 `JobEvaluationAgent` uses the OpenAI Agents SDK (`Agent` + `Runner` + Pydantic `output_type`) to decide whether a listing is worth the candidate's time. It does not write or submit applications.
 
-`POST /jobs/{id}/evaluate` loads the job, primary profile, evidence, and `HardFilterResult`, runs the agent, grounds the output, and stores a `job_evaluations` row.
+`POST /jobs/{id}/evaluate` loads the job, primary profile, evidence, and `HardFilterResult`, then scores the listing. Default `evaluation_mode` is `live_llm` (OpenAI Agents SDK). Pass `evaluation_mode=offline_rubric` or `evaluation_mode=mock` explicitly; those modes never run as a silent fallback from a failed live call.
+
+Every stored row has provenance:
+
+| Field | Meaning |
+| --- | --- |
+| `evaluation_mode` | `live_llm` \| `offline_rubric` \| `mock` |
+| `model` | Model id for live runs; otherwise null |
+| `provider` | `openai`, `offline_rubric`, `hard_filter`, `stub`, or null |
+| `llm_request_id` | Provider request id when the SDK exposes it |
+| `fallback_reason` | Always null for a successful live run. A failed live call returns HTTP 502 (batch: `errors`) and does **not** persist a fake live evaluation. |
+
+`POST /evaluation/batch` accepts the same `evaluation_mode` (default `live_llm`). Hard-filter discards are stored as `offline_rubric` / `provider=hard_filter` because no model ran; they are not a substitute for a failed LLM request.
 
 `POST /evaluation/batch` is an in-process pipeline (no Celery or other queue): load unevaluated jobs, discard deterministic hard-filter failures without calling the model, run `JobEvaluationAgent` on the rest, persist, and return a summary. Jobs are processed independently; one failure is logged and the batch continues. Already-evaluated jobs are skipped unless `reevaluate` is true. `dry_run` runs hard filters only and does not call the model or write rows.
 

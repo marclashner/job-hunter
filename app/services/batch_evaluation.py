@@ -18,7 +18,7 @@ from app.agents.job_evaluation import (
 )
 from app.config import get_settings
 from app.logging_events import log_event, log_exception
-from app.models.enums import Recommendation
+from app.models.enums import EvaluationMode, Recommendation
 from app.repositories.jobs import JobRepository
 from app.schemas.evaluation import (
     BatchEvaluationError,
@@ -27,10 +27,11 @@ from app.schemas.evaluation import (
     ModelUsageSummary,
 )
 from app.services.evaluation import (
-    HARD_FILTER_MODEL,
+    HARD_FILTER_PROVENANCE,
     evaluation_from_hard_filter_failure,
     load_evaluation_inputs,
     persist_evaluation,
+    resolve_evaluation_runner,
     unwrap_evaluation_run,
 )
 from app.services.rate_limit import RateLimiter
@@ -90,6 +91,7 @@ def run_batch_evaluation(
     )
 
     limiter = RateLimiter(per_minute=settings.evaluation_rate_limit_per_minute)
+    active_runner = resolve_evaluation_runner(payload.evaluation_mode, runner)
     outcomes: list[_JobOutcome] = []
 
     if concurrency == 1:
@@ -98,7 +100,8 @@ def run_batch_evaluation(
                 _process_job(
                     session,
                     job_id,
-                    runner=runner,
+                    runner=active_runner,
+                    evaluation_mode=payload.evaluation_mode,
                     dry_run=payload.dry_run,
                     rate_limiter=limiter,
                 )
@@ -112,7 +115,8 @@ def run_batch_evaluation(
                 return _process_job(
                     worker_session,
                     job_id,
-                    runner=runner,
+                    runner=active_runner,
+                    evaluation_mode=payload.evaluation_mode,
                     dry_run=payload.dry_run,
                     rate_limiter=limiter,
                 )
@@ -164,6 +168,7 @@ def _process_job(
     job_id: uuid.UUID,
     *,
     runner: JobEvaluationRunner,
+    evaluation_mode: EvaluationMode,
     dry_run: bool,
     rate_limiter: RateLimiter,
 ) -> _JobOutcome:
@@ -204,7 +209,7 @@ def _process_job(
                     job_id=inputs.job.id,
                     profile_id=inputs.profile.id,
                     hard_filter=inputs.hard_filter,
-                    model=HARD_FILTER_MODEL,
+                    provenance=HARD_FILTER_PROVENANCE,
                 )
             except Exception as exc:
                 session.rollback()
@@ -226,7 +231,18 @@ def _process_job(
 
     try:
         rate_limiter.acquire()
-        raw, usage = unwrap_evaluation_run(runner.evaluate(inputs.user_input, inputs.context))
+        raw, usage, provenance = unwrap_evaluation_run(
+            runner.evaluate(inputs.user_input, inputs.context),
+            runner=runner,
+        )
+        if provenance.evaluation_mode is not evaluation_mode:
+            raise EvaluationAgentError(
+                "runner provenance does not match the requested evaluation_mode"
+            )
+        if evaluation_mode is EvaluationMode.LIVE_LLM and provenance.fallback_reason:
+            raise EvaluationAgentError(
+                "live_llm evaluation was requested; refusing to persist a fallback result"
+            )
         grounded = ground_evaluation(
             raw,
             allowed_evidence_ids=set(inputs.context.allowed_evidence_ids),
@@ -239,7 +255,7 @@ def _process_job(
             job_id=inputs.job.id,
             profile_id=inputs.profile.id,
             hard_filter=inputs.hard_filter,
-            model=get_settings().openai_model,
+            provenance=provenance,
             usage=usage,
         )
         log_event(
@@ -247,6 +263,7 @@ def _process_job(
             "evaluation.batch.evaluated",
             job_id=str(job_id),
             recommendation=grounded.recommendation.value,
+            evaluation_mode=provenance.evaluation_mode.value,
             input_tokens=None if usage is None else usage.input_tokens,
             output_tokens=None if usage is None else usage.output_tokens,
             estimated_cost_usd=None if usage is None else usage.estimated_cost_usd,

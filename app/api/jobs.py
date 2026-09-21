@@ -10,10 +10,11 @@ from app.agents.grounding import EvaluationGroundingError
 from app.agents.job_evaluation import (
     EvaluationAgentError,
     EvaluationConfigurationError,
+    EvaluationModeConflictError,
     JobEvaluationRunner,
 )
 from app.api.deps import get_db, get_evaluation_runner
-from app.models.enums import JobSource, RemotePolicy, Seniority
+from app.models.enums import EvaluationMode, JobSource, RemotePolicy, Seniority
 from app.repositories.jobs import JobListFilters
 from app.schemas.evaluation import JobEvaluationRead
 from app.schemas.job import JobCreate, JobListResponse, JobRead
@@ -72,9 +73,10 @@ def post_job_evaluate(
     job_id: UUID,
     session: Annotated[Session, Depends(get_db)],
     runner: Annotated[JobEvaluationRunner, Depends(get_evaluation_runner)],
+    evaluation_mode: Annotated[EvaluationMode, Query()] = EvaluationMode.LIVE_LLM,
 ) -> JobEvaluationRead:
     try:
-        return evaluate_job(session, job_id, runner=runner)
+        return evaluate_job(session, job_id, runner=runner, evaluation_mode=evaluation_mode)
     except JobNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found") from exc
     except ProfileNotFoundError as exc:
@@ -82,6 +84,8 @@ def post_job_evaluate(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Candidate profile not found. Run: uv run python scripts/seed_candidate.py",
         ) from exc
+    except EvaluationModeConflictError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except EvaluationConfigurationError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)

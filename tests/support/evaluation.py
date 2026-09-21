@@ -6,10 +6,15 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import UUID
 
-from app.agents.job_evaluation import JobEvaluationContext
+from app.agents.job_evaluation import (
+    EvaluationProvenance,
+    EvaluationRunResult,
+    JobEvaluationContext,
+)
 from app.models.enums import (
     ConfidenceLevel,
     EmploymentType,
+    EvaluationMode,
     EvidenceCategory,
     EvidenceSource,
     JobSource,
@@ -189,8 +194,19 @@ def evaluation(**overrides: object) -> JobEvaluation:
 class StubEvaluationRunner:
     output: JobEvaluation
     last_input: str | None = None
+    evaluation_mode: EvaluationMode = EvaluationMode.MOCK
 
-    def evaluate(self, user_input: str, context: JobEvaluationContext) -> JobEvaluation:
+    def evaluate(self, user_input: str, context: JobEvaluationContext) -> EvaluationRunResult:
         self.last_input = user_input
         del context
-        return self.output
+        return EvaluationRunResult(
+            evaluation=self.output,
+            usage=None,
+            provenance=EvaluationProvenance(
+                evaluation_mode=EvaluationMode.MOCK,
+                model=None,
+                provider="stub",
+                llm_request_id=None,
+                fallback_reason=None,
+            ),
+        )

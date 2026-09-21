@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
 
-from app.models.enums import JobSource, Recommendation
+from app.models.enums import EvaluationMode, JobSource, Recommendation
 from app.scoring.hard_filters import HardFilterResult
 
 
@@ -50,10 +50,18 @@ class JobEvaluationRead(JobEvaluation):
     id: UUID
     job_id: UUID
     profile_id: UUID
-    model: str
+    evaluation_mode: EvaluationMode
+    model: str | None = None
+    provider: str | None = None
+    llm_request_id: str | None = None
+    fallback_reason: str | None = None
     hard_filter: HardFilterResult
     created_at: datetime
     updated_at: datetime
+
+
+class EvaluateJobRequest(BaseModel):
+    evaluation_mode: EvaluationMode = EvaluationMode.LIVE_LLM
 
 
 class BatchEvaluationRequest(BaseModel):
@@ -64,6 +72,7 @@ class BatchEvaluationRequest(BaseModel):
     dry_run: bool = False
     reevaluate: bool = False
     concurrency: int | None = Field(default=None, ge=1, le=16)
+    evaluation_mode: EvaluationMode = EvaluationMode.LIVE_LLM
 
     @model_validator(mode="after")
     def date_range_is_ordered(self) -> BatchEvaluationRequest:

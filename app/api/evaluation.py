@@ -2,10 +2,10 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from app.agents.job_evaluation import JobEvaluationRunner
+from app.agents.job_evaluation import EvaluationModeConflictError, JobEvaluationRunner
 from app.api.deps import get_db, get_evaluation_runner
 from app.db import Database
 from app.schemas.evaluation import BatchEvaluationRequest, BatchEvaluationResult
@@ -22,9 +22,12 @@ def post_evaluation_batch(
     runner: Annotated[JobEvaluationRunner, Depends(get_evaluation_runner)],
 ) -> BatchEvaluationResult:
     database: Database = request.app.state.database
-    return run_batch_evaluation(
-        session,
-        payload,
-        runner=runner,
-        session_factory=database.session_factory,
-    )
+    try:
+        return run_batch_evaluation(
+            session,
+            payload,
+            runner=runner,
+            session_factory=database.session_factory,
+        )
+    except EvaluationModeConflictError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc

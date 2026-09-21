@@ -5,6 +5,7 @@ import os
 import pytest
 
 from app.agents.job_evaluation import (
+    EvaluationRunResult,
     JobEvaluationContext,
     OpenAIAgentsEvaluationRunner,
     build_evaluation_input,
@@ -42,6 +43,11 @@ def test_live_openai_evaluation_returns_schema(clear_settings_cache: None) -> No
         hard_filter=hard_filter,
     )
     prompt = build_evaluation_input(job, synthetic_profile(evidence), evidence, hard_filter)
-    output = OpenAIAgentsEvaluationRunner().evaluate(prompt, context)
-    assert isinstance(output, JobEvaluation)
-    assert output.reasoning
+    result = OpenAIAgentsEvaluationRunner().evaluate(prompt, context)
+    assert isinstance(result, EvaluationRunResult)
+    assert isinstance(result.evaluation, JobEvaluation)
+    assert result.evaluation.reasoning
+    assert result.provenance is not None
+    assert result.provenance.evaluation_mode.value == "live_llm"
+    assert result.provenance.provider == "openai"
+    assert result.provenance.fallback_reason is None

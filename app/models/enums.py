@@ -106,6 +106,14 @@ class Recommendation(StrEnum):
     REJECT = "reject"
 
 
+class EvaluationMode(StrEnum):
+    """How a stored evaluation was produced. Live and offline results must not be mixed."""
+
+    LIVE_LLM = "live_llm"
+    OFFLINE_RUBRIC = "offline_rubric"
+    MOCK = "mock"
+
+
 PROFILE_GROUNDABLE_FIELDS: tuple[str, ...] = (
     "name",
     "target_titles",

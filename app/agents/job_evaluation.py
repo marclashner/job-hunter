@@ -20,6 +20,7 @@ from agents import (
 )
 from app.agents.grounding import EvaluationGroundingError, ground_evaluation
 from app.config import Settings, get_settings
+from app.models.enums import EvaluationMode
 from app.schemas.candidate import CandidateEvidenceRead, CandidateProfileRead
 from app.schemas.evaluation import JobEvaluation
 from app.schemas.job import JobRead
@@ -86,13 +87,25 @@ class EvaluationUsage:
 
 
 @dataclass(frozen=True, slots=True)
+class EvaluationProvenance:
+    evaluation_mode: EvaluationMode
+    model: str | None = None
+    provider: str | None = None
+    llm_request_id: str | None = None
+    fallback_reason: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class EvaluationRunResult:
     evaluation: JobEvaluation
     usage: EvaluationUsage | None = None
+    provenance: EvaluationProvenance | None = None
 
 
 class JobEvaluationRunner(Protocol):
     """Production uses the OpenAI Agents SDK; tests inject a stub."""
+
+    evaluation_mode: EvaluationMode
 
     def evaluate(
         self, user_input: str, context: JobEvaluationContext
@@ -105,6 +118,10 @@ class EvaluationConfigurationError(RuntimeError):
 
 class EvaluationAgentError(RuntimeError):
     """Raised when the agent run fails after retries."""
+
+
+class EvaluationModeConflictError(RuntimeError):
+    """Raised when the requested evaluation_mode does not match the runner or result."""
 
 
 @output_guardrail
@@ -167,6 +184,8 @@ def build_evaluation_input(
 class OpenAIAgentsEvaluationRunner:
     """Runs JobEvaluationAgent via the OpenAI Agents SDK."""
 
+    evaluation_mode: EvaluationMode = EvaluationMode.LIVE_LLM
+
     def evaluate(self, user_input: str, context: JobEvaluationContext) -> EvaluationRunResult:
         settings = get_settings()
         if not settings.openai_api_key:
@@ -192,7 +211,18 @@ class OpenAIAgentsEvaluationRunner:
         else:
             evaluation = JobEvaluation.model_validate(output)
         usage = usage_from_run_result(result, settings)
-        return EvaluationRunResult(evaluation=evaluation, usage=usage)
+        request_id = getattr(result, "last_response_id", None)
+        return EvaluationRunResult(
+            evaluation=evaluation,
+            usage=usage,
+            provenance=EvaluationProvenance(
+                evaluation_mode=EvaluationMode.LIVE_LLM,
+                model=settings.openai_model,
+                provider="openai",
+                llm_request_id=str(request_id) if request_id else None,
+                fallback_reason=None,
+            ),
+        )
 
 
 def usage_from_run_result(result: object, settings: Settings) -> EvaluationUsage | None:
