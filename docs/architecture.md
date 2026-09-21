@@ -44,6 +44,8 @@ Ingested listings live in `jobs`. `source` + `source_job_id` is unique. `raw_dat
 - `POST /evaluation/batch` — in-process batch with the same `evaluation_mode` rules.
 - `GET /review/summary`, `GET /review/jobs`, `GET /review/jobs/{id}`, `POST /review/jobs/{id}/decision` — human review dashboard. Approve/Review/Reject do **not** submit applications. The UI is served at `/`.
 
+Machine-readable HTTP docs are generated from FastAPI at `/openapi.json` and committed as [openapi.json](openapi.json). Interactive UI: `/docs` and `/redoc`. Regenerate with `make openapi`.
+
 ## Testing
 
 Unit tests override FastAPI dependencies or call services with doubles. Integration tests use the real engine against PostgreSQL and skip when the database is down.

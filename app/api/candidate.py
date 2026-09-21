@@ -21,8 +21,9 @@ router = APIRouter(prefix="/candidate", tags=["candidate"])
 _PROFILE_NOT_FOUND = "Candidate profile not found. Run: uv run python scripts/seed_candidate.py"
 
 
-@router.get("/profile", response_model=CandidateProfileRead)
+@router.get("/profile", response_model=CandidateProfileRead, summary="Candidate profile")
 def get_candidate_profile(session: Annotated[Session, Depends(get_db)]) -> CandidateProfileRead:
+    """Return the primary profile with grounded field provenance."""
     try:
         profile = require_profile(session)
     except ProfileNotFoundError as exc:
@@ -30,11 +31,12 @@ def get_candidate_profile(session: Annotated[Session, Depends(get_db)]) -> Candi
     return profile_to_read(profile)
 
 
-@router.get("/evidence", response_model=CandidateEvidenceListResponse)
+@router.get("/evidence", response_model=CandidateEvidenceListResponse, summary="Candidate evidence")
 def get_candidate_evidence(
     session: Annotated[Session, Depends(get_db)],
     category: Annotated[EvidenceCategory | None, Query()] = None,
 ) -> CandidateEvidenceListResponse:
+    """Return atomic claims the evaluation agent may cite."""
     try:
         records = list_evidence(session, category=category)
     except ProfileNotFoundError as exc:

@@ -36,6 +36,8 @@ A successful health response looks like:
 
 If the database is unreachable, the same endpoint returns HTTP 503 with `"status": "degraded"`.
 
+Interactive API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) (Swagger UI) and `/redoc`. The committed spec is [docs/openapi.json](docs/openapi.json) (regenerate with `make openapi`).
+
 ## Candidate profile
 
 Seed a placeholder senior engineer (replace `data/candidate/*.json` with real data):
@@ -63,6 +65,46 @@ See [docs/candidate-evidence.md](docs/candidate-evidence.md).
 - Review UI at `/` — dashboard, job queue, and detail. Human Approve/Review/Reject only; applications are not submitted.
 
 Duplicate `source` + `source_job_id` on `POST /jobs` returns HTTP 409. Sync uses upsert instead. Duplicate descriptions share a `content_hash` and set `is_duplicate_description`.
+
+## Live jobs on the dashboard
+
+Use this path when you want **real Greenhouse/Lever listings**, **live LLM scores**, and results in the review UI. Do it after the candidate profile is seeded (`make seed`) and Postgres is migrated. Live evaluation calls OpenAI and costs money; keep `EVALUATION_RATE_LIMIT_PER_MINUTE` in mind.
+
+1. Put `OPENAI_API_KEY` in `.env`. Leave `OPENAI_MODEL` at `gpt-4o-mini` unless you intend to change it.
+2. Start the API (`make run`). The dashboard is [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
+3. Find public board slugs from the careers URL (not from HTML scraping):
+   - Greenhouse: `https://boards.greenhouse.io/{board_token}`
+   - Lever: `https://jobs.lever.co/{site}`
+4. Pull listings. Repeating a sync **upserts**; it does not duplicate `source` + `source_job_id`.
+
+```bash
+curl -sS -X POST "http://127.0.0.1:8000/sources/greenhouse/BOARD_TOKEN/sync"
+curl -sS -X POST "http://127.0.0.1:8000/sources/lever/SITE/sync"
+```
+
+A 404 means that public board does not exist. The JSON body reports `fetched`, `inserted`, `updated`, `skipped`, and per-row `errors`.
+
+5. Optional: count hard-filter discards without calling the model.
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/evaluation/batch \
+  -H "Content-Type: application/json" \
+  -d '{"dry_run": true, "limit": 50}'
+```
+
+6. Evaluate unevaluated jobs with the live agent (default `evaluation_mode` is `live_llm`). Filter to a source if you only synced one board. Start with a small `limit`.
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/evaluation/batch \
+  -H "Content-Type: application/json" \
+  -d '{"source": "greenhouse", "limit": 20}'
+```
+
+A failed live call is an error (HTTP 502 on a single job; batch `errors` entries). It does **not** store an offline score as live. Pass `"evaluation_mode": "offline_rubric"` or `"mock"` only when you explicitly want those modes. Already-evaluated jobs are skipped unless `"reevaluate": true`.
+
+7. Refresh [http://127.0.0.1:8000/](http://127.0.0.1:8000/). The queue shows evaluated jobs. Filter by source (`greenhouse` / `lever`), recommendation, minimum score, remote, or date discovered. Open a row for description, evaluation, cited evidence, hard filters, and the application URL. Approve / Review / Reject are human decisions only.
+
+Sync again whenever you want newer postings; then run another batch so the dashboard picks up scores for the new rows.
 
 ## Configuration
 
@@ -101,6 +143,7 @@ DATABASE_URL=postgresql+psycopg://YOUR_USER@localhost:5432/jobsearch
 | `make seed` | Load/replace candidate JSON into Postgres |
 | `make up` / `make down` | Start/stop Compose Postgres |
 | `make db-check` | Ping the configured database |
+| `make openapi` | Write `docs/openapi.json` from the current FastAPI app |
 
 ## Layout
 

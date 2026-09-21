@@ -27,11 +27,12 @@ from app.services.jobs import DuplicateJobError, JobNotFoundError, create_job, g
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
-@router.post("", response_model=JobRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=JobRead, status_code=status.HTTP_201_CREATED, summary="Create job")
 def post_job(
     payload: JobCreate,
     session: Annotated[Session, Depends(get_db)],
 ) -> JobRead:
+    """Insert a listing. Duplicate source + source_job_id returns 409."""
     try:
         return create_job(session, payload)
     except DuplicateJobError as exc:
@@ -41,7 +42,7 @@ def post_job(
         ) from exc
 
 
-@router.get("", response_model=JobListResponse)
+@router.get("", response_model=JobListResponse, summary="List jobs")
 def get_jobs(
     session: Annotated[Session, Depends(get_db)],
     source: Annotated[JobSource | None, Query()] = None,
@@ -53,6 +54,7 @@ def get_jobs(
     limit: Annotated[int, Query(ge=1, le=100)] = 20,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> JobListResponse:
+    """Filter and paginate ingested listings."""
     filters = JobListFilters(
         source=source,
         title=title,
@@ -68,6 +70,7 @@ def get_jobs(
     "/{job_id}/evaluate",
     response_model=JobEvaluationRead,
     status_code=status.HTTP_201_CREATED,
+    summary="Evaluate one job",
 )
 def post_job_evaluate(
     job_id: UUID,
@@ -75,6 +78,7 @@ def post_job_evaluate(
     runner: Annotated[JobEvaluationRunner, Depends(get_evaluation_runner)],
     evaluation_mode: Annotated[EvaluationMode, Query()] = EvaluationMode.LIVE_LLM,
 ) -> JobEvaluationRead:
+    """Score a listing. Default `evaluation_mode` is `live_llm` (requires OPENAI_API_KEY)."""
     try:
         return evaluate_job(session, job_id, runner=runner, evaluation_mode=evaluation_mode)
     except JobNotFoundError as exc:
@@ -98,11 +102,16 @@ def post_job_evaluate(
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
 
-@router.post("/{job_id}/hard-filter", response_model=HardFilterResult)
+@router.post(
+    "/{job_id}/hard-filter",
+    response_model=HardFilterResult,
+    summary="Run hard filters",
+)
 def post_job_hard_filter(
     job_id: UUID,
     session: Annotated[Session, Depends(get_db)],
 ) -> HardFilterResult:
+    """Deterministic knock-outs vs the primary candidate. Missing salary does not fail."""
     try:
         return evaluate_job_hard_filter(session, job_id)
     except JobNotFoundError as exc:
@@ -114,11 +123,12 @@ def post_job_hard_filter(
         ) from exc
 
 
-@router.get("/{job_id}", response_model=JobRead)
+@router.get("/{job_id}", response_model=JobRead, summary="Get job")
 def get_job_by_id(
     job_id: UUID,
     session: Annotated[Session, Depends(get_db)],
 ) -> JobRead:
+    """Return a single listing."""
     try:
         return get_job(session, job_id)
     except JobNotFoundError as exc:

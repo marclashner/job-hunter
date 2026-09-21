@@ -14,13 +14,19 @@ from app.services.batch_evaluation import run_batch_evaluation
 router = APIRouter(prefix="/evaluation", tags=["evaluation"])
 
 
-@router.post("/batch", response_model=BatchEvaluationResult, status_code=status.HTTP_200_OK)
+@router.post(
+    "/batch",
+    response_model=BatchEvaluationResult,
+    status_code=status.HTTP_200_OK,
+    summary="Evaluate a batch of jobs",
+)
 def post_evaluation_batch(
     payload: BatchEvaluationRequest,
     request: Request,
     session: Annotated[Session, Depends(get_db)],
     runner: Annotated[JobEvaluationRunner, Depends(get_evaluation_runner)],
 ) -> BatchEvaluationResult:
+    """Evaluate unevaluated jobs in-process. Default `evaluation_mode` is `live_llm`."""
     database: Database = request.app.state.database
     try:
         return run_batch_evaluation(

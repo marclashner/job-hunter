@@ -65,14 +65,35 @@ class EvaluateJobRequest(BaseModel):
 
 
 class BatchEvaluationRequest(BaseModel):
-    source: JobSource | None = None
-    discovered_after: datetime | None = None
-    discovered_before: datetime | None = None
-    limit: int | None = Field(default=None, ge=1, le=500)
-    dry_run: bool = False
-    reevaluate: bool = False
-    concurrency: int | None = Field(default=None, ge=1, le=16)
-    evaluation_mode: EvaluationMode = EvaluationMode.LIVE_LLM
+    source: JobSource | None = Field(
+        default=None, description="Limit to greenhouse, lever, or manual."
+    )
+    discovered_after: datetime | None = Field(
+        default=None, description="Inclusive lower bound on job discovered_at (UTC)."
+    )
+    discovered_before: datetime | None = Field(
+        default=None, description="Inclusive upper bound on job discovered_at (UTC)."
+    )
+    limit: int | None = Field(
+        default=None,
+        ge=1,
+        le=500,
+        description="Max jobs to pick up. Defaults to EVALUATION_BATCH_LIMIT_DEFAULT.",
+    )
+    dry_run: bool = Field(
+        default=False,
+        description="Run hard filters only; do not call the model or persist evaluations.",
+    )
+    reevaluate: bool = Field(
+        default=False, description="Include jobs that already have an evaluation."
+    )
+    concurrency: int | None = Field(
+        default=None, ge=1, le=16, description="Worker threads. Defaults to EVALUATION_CONCURRENCY."
+    )
+    evaluation_mode: EvaluationMode = Field(
+        default=EvaluationMode.LIVE_LLM,
+        description="live_llm requires OPENAI_API_KEY. offline_rubric and mock must be explicit.",
+    )
 
     @model_validator(mode="after")
     def date_range_is_ordered(self) -> BatchEvaluationRequest:

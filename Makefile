@@ -2,7 +2,7 @@ UV ?= uv
 API_HOST ?= 0.0.0.0
 API_PORT ?= 8000
 
-.PHONY: install sync test run lint fmt typecheck migrate migrate-new seed up down db-check
+.PHONY: install sync test run lint fmt typecheck migrate migrate-new seed up down db-check openapi
 
 install sync:
 	$(UV) sync --group dev
@@ -41,3 +41,6 @@ down:
 
 db-check:
 	$(UV) run python scripts/check_db.py
+
+openapi:
+	$(UV) run python scripts/export_openapi.py

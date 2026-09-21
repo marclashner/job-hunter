@@ -12,11 +12,12 @@ from app.services.health import check_health
 router = APIRouter(tags=["health"])
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get("/health", response_model=HealthResponse, summary="Health check")
 def health(
     response: Response,
     session: Annotated[Session, Depends(get_db)],
 ) -> HealthResponse:
+    """Return 200 when PostgreSQL answers `SELECT 1`, otherwise 503."""
     result = check_health(session)
     if result.status != "ok":
         response.status_code = 503

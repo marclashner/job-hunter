@@ -54,19 +54,25 @@ def _sync(
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 
 
-@router.post("/greenhouse/{board_token}/sync", response_model=SourceSyncResult)
+@router.post(
+    "/greenhouse/{board_token}/sync",
+    response_model=SourceSyncResult,
+    summary="Sync Greenhouse board",
+)
 def sync_greenhouse_board(
     board_token: Annotated[str, _SITE_SLUG],
     session: Annotated[Session, Depends(get_db)],
     client: Annotated[GreenhouseClient, Depends(get_greenhouse_client)],
 ) -> SourceSyncResult:
+    """Fetch `boards-api.greenhouse.io` jobs for a public board token and upsert."""
     return _sync(session, client, board_token, JobSource.GREENHOUSE)
 
 
-@router.post("/lever/{site}/sync", response_model=SourceSyncResult)
+@router.post("/lever/{site}/sync", response_model=SourceSyncResult, summary="Sync Lever site")
 def sync_lever_site(
     site: Annotated[str, _SITE_SLUG],
     session: Annotated[Session, Depends(get_db)],
     client: Annotated[LeverClient, Depends(get_lever_client)],
 ) -> SourceSyncResult:
+    """Fetch `api.lever.co` postings for a public site slug and upsert."""
     return _sync(session, client, site, JobSource.LEVER)

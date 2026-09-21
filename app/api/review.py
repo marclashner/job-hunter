@@ -28,12 +28,13 @@ from app.services.review import (
 router = APIRouter(prefix="/review", tags=["review"])
 
 
-@router.get("/summary", response_model=ReviewSummary)
+@router.get("/summary", response_model=ReviewSummary, summary="Review dashboard counts")
 def get_review_summary(session: Annotated[Session, Depends(get_db)]) -> ReviewSummary:
+    """Counts for discovered, evaluated, recommended, review, submitted, interviews, and offers."""
     return review_summary(session)
 
 
-@router.get("/jobs", response_model=JobQueueResponse)
+@router.get("/jobs", response_model=JobQueueResponse, summary="Review job queue")
 def get_review_queue(
     session: Annotated[Session, Depends(get_db)],
     recommendation: Annotated[Recommendation | None, Query()] = None,
@@ -44,6 +45,7 @@ def get_review_queue(
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> JobQueueResponse:
+    """Evaluated jobs for human review. Filter by recommendation, score, source, remote, date."""
     discovered_after = None
     discovered_before = None
     if discovered is not None:
@@ -59,23 +61,29 @@ def get_review_queue(
     return list_review_queue(session, filters, limit=limit, offset=offset)
 
 
-@router.get("/jobs/{job_id}", response_model=JobReviewDetail)
+@router.get("/jobs/{job_id}", response_model=JobReviewDetail, summary="Review job detail")
 def get_review_job(
     job_id: UUID,
     session: Annotated[Session, Depends(get_db)],
 ) -> JobReviewDetail:
+    """Description, evaluation, cited evidence, hard-filter result, and application URL."""
     try:
         return get_review_detail(session, job_id)
     except JobNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found") from exc
 
 
-@router.post("/jobs/{job_id}/decision", response_model=JobReviewDetail)
+@router.post(
+    "/jobs/{job_id}/decision",
+    response_model=JobReviewDetail,
+    summary="Record a human decision",
+)
 def post_review_decision(
     job_id: UUID,
     payload: HumanDecisionRequest,
     session: Annotated[Session, Depends(get_db)],
 ) -> JobReviewDetail:
+    """Store approve, review, or reject. Does not submit an application."""
     try:
         return set_human_decision(session, job_id, payload.decision)
     except JobNotFoundError as exc:
