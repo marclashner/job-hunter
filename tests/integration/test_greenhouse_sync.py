@@ -1,6 +1,7 @@
 """Greenhouse sync against mocked HTTP and live PostgreSQL."""
 
 from collections.abc import Iterator
+from uuid import uuid4
 
 import httpx
 from fastapi.testclient import TestClient
@@ -38,9 +39,11 @@ def _override_greenhouse(client: GreenhouseClient) -> None:
 
 @requires_postgres
 def test_greenhouse_sync_fetches_normalizes_inserts_and_is_idempotent() -> None:
-    job_one = greenhouse_job(91001, title="Senior Backend Engineer")
+    id_one = uuid4().int % 800_000_000 + 100_000_000
+    id_two = id_one + 1
+    job_one = greenhouse_job(id_one, title="Senior Backend Engineer")
     job_two = greenhouse_job(
-        91002,
+        id_two,
         title="Staff Platform Engineer",
         location="New York, NY",
         content="<p>Own Kubernetes platforms and observability.</p>",
@@ -75,24 +78,26 @@ def test_greenhouse_sync_fetches_normalizes_inserts_and_is_idempotent() -> None:
     assert again["inserted"] == 0
     assert again["updated"] == 2
 
-    items = [
-        item for item in listing.json()["items"] if item["source_job_id"] in {"91001", "91002"}
-    ]
+    expected_ids = {str(id_one), str(id_two)}
+    items = [item for item in listing.json()["items"] if item["source_job_id"] in expected_ids]
     assert len(items) == 2
-    backend = next(item for item in items if item["source_job_id"] == "91001")
+    backend = next(item for item in items if item["source_job_id"] == str(id_one))
     assert backend["company"] == "Helix Care"
     assert backend["source"] == "greenhouse"
     assert "Build Python APIs" in backend["description"]
     assert "<p>" not in backend["description"]
     assert backend["raw_data"]["board_token"] == BOARD_TOKEN
-    assert backend["raw_data"]["payload"]["id"] == 91001
+    assert backend["raw_data"]["payload"]["id"] == id_one
 
 
 @requires_postgres
 def test_greenhouse_sync_skips_malformed_jobs_without_aborting() -> None:
-    good = greenhouse_job(91011, title="Senior Backend Engineer")
-    also_good = greenhouse_job(91012, title="Junior Support Engineer", location="Austin, TX")
-    malformed = {"id": 91013, "title": "Broken", "content": "<p>  </p>"}
+    id_good = uuid4().int % 800_000_000 + 100_000_000
+    id_also = id_good + 1
+    id_bad = id_good + 2
+    good = greenhouse_job(id_good, title="Senior Backend Engineer")
+    also_good = greenhouse_job(id_also, title="Junior Support Engineer", location="Austin, TX")
+    malformed = {"id": id_bad, "title": "Broken", "content": "<p>  </p>"}
     responses = {
         f"/v1/boards/{BOARD_TOKEN}": httpx.Response(200, json=board_payload("Helix Care")),
         f"/v1/boards/{BOARD_TOKEN}/jobs": httpx.Response(
@@ -115,15 +120,15 @@ def test_greenhouse_sync_skips_malformed_jobs_without_aborting() -> None:
     assert body["fetched"] == 3
     assert body["inserted"] + body["updated"] == 2
     assert body["skipped"] == 1
-    assert body["errors"][0]["source_job_id"] == "91013"
+    assert body["errors"][0]["source_job_id"] == str(id_bad)
 
     database = Database(get_settings())
     session = database.session_factory()
     try:
         repo = JobRepository(session)
-        assert repo.get_by_source_identity("greenhouse", "91011") is not None
-        assert repo.get_by_source_identity("greenhouse", "91012") is not None
-        assert repo.get_by_source_identity("greenhouse", "91013") is None
+        assert repo.get_by_source_identity("greenhouse", str(id_good)) is not None
+        assert repo.get_by_source_identity("greenhouse", str(id_also)) is not None
+        assert repo.get_by_source_identity("greenhouse", str(id_bad)) is None
     finally:
         session.close()
         database.dispose()

@@ -10,7 +10,7 @@ from typing import Any
 
 import httpx
 
-from app.models.enums import EmploymentType, JobSource, RemotePolicy, Seniority
+from app.models.enums import EmploymentType, JobSource
 from app.schemas.job import JobCreate
 from app.sources.base import (
     JobBoardNotFoundError,
@@ -18,25 +18,21 @@ from app.sources.base import (
     JobSourceFetchError,
     RawJob,
 )
+from app.sources.fields import (
+    as_job_id,
+    as_string,
+    clip,
+    employment_from_text,
+    parse_datetime,
+    remote_policy_from_text,
+    seniority_from_title,
+)
 from app.sources.html_text import html_to_text
+from app.sources.http import RetryingJsonClient
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_BASE_URL = "https://boards-api.greenhouse.io"
-DEFAULT_TIMEOUT = httpx.Timeout(10.0, connect=5.0)
-_RETRYABLE_STATUS = frozenset({429, 500, 502, 503, 504})
-_TITLE_SENIORITY: tuple[tuple[str, Seniority], ...] = (
-    ("distinguished", Seniority.DISTINGUISHED),
-    ("principal", Seniority.PRINCIPAL),
-    ("staff", Seniority.STAFF),
-    ("senior", Seniority.SENIOR),
-    ("sr.", Seniority.SENIOR),
-    ("sr ", Seniority.SENIOR),
-    ("junior", Seniority.JUNIOR),
-    ("jr.", Seniority.JUNIOR),
-    ("jr ", Seniority.JUNIOR),
-    ("intern", Seniority.JUNIOR),
-)
 
 
 class GreenhouseClient:
@@ -51,18 +47,16 @@ class GreenhouseClient:
         max_retries: int = 3,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
-        self._base_url = base_url.rstrip("/")
-        self._max_retries = max(0, max_retries)
-        self._sleep = sleep
-        self._owns_client = client is None
-        self._client = client or httpx.Client(
-            timeout=timeout if timeout is not None else DEFAULT_TIMEOUT,
-            headers={"Accept": "application/json", "User-Agent": "autonomous-job-search-agent/0.1"},
+        self._http = RetryingJsonClient(
+            client,
+            base_url=base_url,
+            timeout=timeout,
+            max_retries=max_retries,
+            sleep=sleep,
         )
 
     def close(self) -> None:
-        if self._owns_client:
-            self._client.close()
+        self._http.close()
 
     def __enter__(self) -> GreenhouseClient:
         return self
@@ -71,19 +65,23 @@ class GreenhouseClient:
         self.close()
 
     def get_board(self, board_token: str) -> dict[str, Any]:
-        payload = self._get_json(f"/v1/boards/{board_token}")
+        payload = self._get_json(f"/v1/boards/{board_token}", item=False)
         if not isinstance(payload, dict):
             raise JobSourceFetchError("Greenhouse board response was not an object")
         return payload
 
     def get_job(self, board_token: str, job_id: str) -> dict[str, Any]:
-        payload = self._get_json(f"/v1/boards/{board_token}/jobs/{job_id}")
+        payload = self._get_json(f"/v1/boards/{board_token}/jobs/{job_id}", item=True)
         if not isinstance(payload, dict):
             raise JobNormalizationError("Greenhouse job response was not an object")
         return payload
 
     def list_jobs(self, board_token: str) -> list[dict[str, Any]]:
-        payload = self._get_json(f"/v1/boards/{board_token}/jobs", params={"content": "true"})
+        payload = self._get_json(
+            f"/v1/boards/{board_token}/jobs",
+            params={"content": "true"},
+            item=False,
+        )
         if not isinstance(payload, dict) or "jobs" not in payload:
             raise JobSourceFetchError("Greenhouse jobs response was missing a jobs array")
         jobs = payload["jobs"]
@@ -93,12 +91,12 @@ class GreenhouseClient:
 
     def fetch_jobs(self, company_identifier: str) -> list[RawJob]:
         board = self.get_board(company_identifier)
-        company_name = _string(board.get("name")) or company_identifier
+        company_name = as_string(board.get("name")) or company_identifier
         raw_jobs: list[RawJob] = []
         for item in self.list_jobs(company_identifier):
             payload = item
-            if not _string(payload.get("content")):
-                job_id = _job_id(payload)
+            if not as_string(payload.get("content")):
+                job_id = as_job_id(payload)
                 if job_id is None:
                     logger.warning(
                         "Skipping Greenhouse row without id or content board=%s",
@@ -126,13 +124,13 @@ class GreenhouseClient:
 
     def normalize(self, raw_job: RawJob) -> JobCreate:
         payload = raw_job.payload
-        job_id = _job_id(payload)
-        title = _string(payload.get("title"))
-        description = html_to_text(_string(payload.get("content")) or "")
+        job_id = as_job_id(payload)
+        title = as_string(payload.get("title"))
+        description = html_to_text(as_string(payload.get("content")) or "")
         if not job_id or not title or not description:
             raise JobNormalizationError("Greenhouse job is missing id, title, or description")
 
-        absolute_url = _string(payload.get("absolute_url"))
+        absolute_url = as_string(payload.get("absolute_url"))
         location = _location_name(payload)
         return JobCreate(
             source=JobSource.GREENHOUSE,
@@ -140,12 +138,12 @@ class GreenhouseClient:
             company=raw_job.company_name[:255],
             title=title[:255],
             description=description,
-            location=location[:255] if location else None,
-            remote_policy=_remote_policy(location),
+            location=clip(location, 255),
+            remote_policy=remote_policy_from_text(location),
             employment_type=_employment_type(payload),
-            seniority=_seniority_from_title(title),
-            job_url=absolute_url[:2048] if absolute_url else None,
-            application_url=absolute_url[:2048] if absolute_url else None,
+            seniority=seniority_from_title(title),
+            job_url=clip(absolute_url, 2048),
+            application_url=clip(absolute_url, 2048),
             department=_department_name(payload),
             posted_at=_posted_at(payload),
             raw_data={
@@ -158,84 +156,25 @@ class GreenhouseClient:
             },
         )
 
-    def _get_json(self, path: str, params: dict[str, str] | None = None) -> Any:
-        response = self._request("GET", f"{self._base_url}{path}", params=params)
-        try:
-            return response.json()
-        except ValueError as exc:
-            raise JobSourceFetchError("Greenhouse returned non-JSON") from exc
-
-    def _request(
-        self, method: str, url: str, params: dict[str, str] | None = None
-    ) -> httpx.Response:
-        last_error: Exception | None = None
-        attempts = self._max_retries + 1
-        for attempt in range(attempts):
-            try:
-                response = self._client.request(method, url, params=params)
-            except (httpx.TimeoutException, httpx.NetworkError) as exc:
-                last_error = exc
-                logger.warning(
-                    "Greenhouse request failed attempt=%s url=%s error=%s", attempt + 1, url, exc
-                )
-                if attempt >= self._max_retries:
-                    break
-                self._sleep(_backoff_seconds(attempt))
-                continue
-
-            if response.status_code == 404:
-                if "/jobs/" in url:
-                    raise JobNormalizationError(f"Greenhouse job not found: {url}")
-                raise JobBoardNotFoundError(f"Greenhouse board not found: {url}")
-            if response.status_code in _RETRYABLE_STATUS and attempt < self._max_retries:
-                logger.warning(
-                    "Greenhouse retryable status=%s attempt=%s url=%s",
-                    response.status_code,
-                    attempt + 1,
-                    url,
-                )
-                self._sleep(_backoff_seconds(attempt, response))
-                continue
-            try:
-                response.raise_for_status()
-            except httpx.HTTPStatusError as exc:
-                raise JobSourceFetchError(
-                    f"Greenhouse HTTP {response.status_code} for {url}"
-                ) from exc
-            return response
-
-        raise JobSourceFetchError(f"Greenhouse request failed after retries: {url}") from last_error
-
-
-def _backoff_seconds(attempt: int, response: httpx.Response | None = None) -> float:
-    if response is not None:
-        retry_after = response.headers.get("Retry-After")
-        if retry_after is not None and retry_after.isdigit():
-            delay = float(str(retry_after))
-            return delay if delay < 8.0 else 8.0
-    delay = 0.25 * (2**attempt)
-    return delay if delay < 4.0 else 4.0
-
-
-def _job_id(payload: dict[str, Any]) -> str | None:
-    raw = payload.get("id")
-    if raw is None:
-        return None
-    value = str(raw).strip()
-    return value or None
-
-
-def _string(value: object) -> str | None:
-    if isinstance(value, str):
-        text = value.strip()
-        return text or None
-    return None
+    def _get_json(
+        self,
+        path: str,
+        params: dict[str, str] | None = None,
+        *,
+        item: bool,
+    ) -> Any:
+        status, payload = self._http.get_json(path, params=params)
+        if status == 404:
+            if item:
+                raise JobNormalizationError(f"Greenhouse job not found: {path}")
+            raise JobBoardNotFoundError(f"Greenhouse board not found: {path}")
+        return payload
 
 
 def _location_name(payload: dict[str, Any]) -> str | None:
     location = payload.get("location")
     if isinstance(location, dict):
-        name = _string(location.get("name"))
+        name = as_string(location.get("name"))
         if name:
             return name
     offices = payload.get("offices")
@@ -243,7 +182,7 @@ def _location_name(payload: dict[str, Any]) -> str | None:
         names: list[str] = []
         for office in offices:
             if isinstance(office, dict):
-                name = _string(office.get("name"))
+                name = as_string(office.get("name"))
                 if name:
                     names.append(name)
         if names:
@@ -257,7 +196,7 @@ def _department_name(payload: dict[str, Any]) -> str | None:
         return None
     for department in departments:
         if isinstance(department, dict):
-            name = _string(department.get("name"))
+            name = as_string(department.get("name"))
             if name:
                 return name[:255]
     return None
@@ -265,36 +204,9 @@ def _department_name(payload: dict[str, Any]) -> str | None:
 
 def _posted_at(payload: dict[str, Any]) -> datetime | None:
     for key in ("first_published", "updated_at", "created_at"):
-        raw = _string(payload.get(key))
-        if not raw:
-            continue
-        try:
-            return datetime.fromisoformat(raw.replace("Z", "+00:00"))
-        except ValueError:
-            logger.warning("Ignoring unparsable Greenhouse timestamp %s=%s", key, raw)
-    return None
-
-
-def _remote_policy(location: str | None) -> RemotePolicy:
-    if not location:
-        return RemotePolicy.UNKNOWN
-    lowered = location.lower()
-    if "remote" in lowered and "hybrid" in lowered:
-        return RemotePolicy.HYBRID
-    if "hybrid" in lowered:
-        return RemotePolicy.HYBRID
-    if "remote" in lowered:
-        return RemotePolicy.REMOTE
-    if "on-site" in lowered or "onsite" in lowered:
-        return RemotePolicy.ONSITE
-    return RemotePolicy.ONSITE
-
-
-def _seniority_from_title(title: str) -> Seniority | None:
-    lowered = f" {title.lower()} "
-    for needle, seniority in _TITLE_SENIORITY:
-        if needle in lowered:
-            return seniority
+        parsed = parse_datetime(payload.get(key))
+        if parsed is not None:
+            return parsed
     return None
 
 
@@ -305,15 +217,10 @@ def _employment_type(payload: dict[str, Any]) -> EmploymentType | None:
     for item in metadata:
         if not isinstance(item, dict):
             continue
-        name = (_string(item.get("name")) or "").lower()
+        name = (as_string(item.get("name")) or "").lower()
         if "employ" not in name:
             continue
-        value = _string(item.get("value")) or ""
-        lowered = value.lower()
-        if "contract" in lowered:
-            return EmploymentType.CONTRACT
-        if "part" in lowered:
-            return EmploymentType.PART_TIME
-        if "full" in lowered:
-            return EmploymentType.FULL_TIME
+        mapped = employment_from_text(as_string(item.get("value")))
+        if mapped is not None:
+            return mapped
     return None

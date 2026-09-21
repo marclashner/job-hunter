@@ -56,6 +56,7 @@ See [docs/candidate-evidence.md](docs/candidate-evidence.md).
 - `GET /jobs` — filters: `source`, `title`, `location`, `remote_policy`, `seniority`, `minimum_salary`; pagination: `limit`, `offset`
 - `GET /jobs/{id}`
 - `POST /sources/greenhouse/{board_token}/sync` — Greenhouse Job Board JSON API (not HTML scraping). Upserts by `source` + `source_job_id`.
+- `POST /sources/lever/{site}/sync` — Lever postings JSON API. Same upsert rules.
 
 Duplicate `source` + `source_job_id` on `POST /jobs` returns HTTP 409. Sync uses upsert instead. Duplicate descriptions share a `content_hash` and set `is_duplicate_description`.
 

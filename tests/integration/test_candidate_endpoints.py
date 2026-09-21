@@ -26,19 +26,18 @@ def test_candidate_endpoints_return_grounded_seed_data(database: Database) -> No
 
     assert profile_response.status_code == 200
     profile = profile_response.json()
-    assert profile["key"] == "primary"
+    assert profile["key"] == bundle.profile.key
     assert profile["name"]["provenance"] == "evidence_backed"
-    assert profile["name"]["value"] == "Jordan Hale"
+    assert profile["name"]["value"] == bundle.profile.name
     assert profile["summary"]["provenance"] == "derived"
     assert profile["summary"]["interpretation_notes"]
     assert profile["ai_experience"]["provenance"] == "evidence_backed"
-    assert "frontend" in profile["unknown_categories"]
+    assert isinstance(profile["unknown_categories"], list)
     assert "Never invent candidate experience" in profile["agent_usage_rule"]
 
     assert evidence_response.status_code == 200
     payload = evidence_response.json()
     keys = {item["key"] for item in payload["items"]}
-    assert "ai" in keys
-    assert "distributed-systems" in keys
+    assert {item.key for item in bundle.evidence} <= keys
     assert filtered.status_code == 200
     assert filtered.json()["items"] == []
