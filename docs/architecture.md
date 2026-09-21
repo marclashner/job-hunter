@@ -11,7 +11,7 @@ The initial scaffold is a modular FastAPI service with a PostgreSQL persistence 
 - **`app/repositories`**: Query helpers used by services.
 - **`app/db`**: Engine, session factory, and declarative base.
 - **`app/config.py`**: `pydantic-settings` configuration. The process environment is the source of truth.
-- **`app/agents`, `app/sources`, `app/scoring`**: Agents are reserved. `app/sources` holds job-board adapters. `app/scoring` holds deterministic hard filters (`evaluate_hard_filters`); LLM ranking is not implemented.
+- **`app/agents`, `app/sources`, `app/scoring`**: `app/agents` holds `JobEvaluationAgent` (OpenAI Agents SDK). `app/sources` holds job-board adapters. `app/scoring` holds deterministic hard filters. See [agents.md](agents.md) and [scoring.md](scoring.md).
 
 ## Runtime wiring
 
@@ -40,6 +40,7 @@ Ingested listings live in `jobs`. `source` + `source_job_id` is unique. `raw_dat
 - `POST /sources/greenhouse/{board_token}/sync` — pull the public Greenhouse Job Board JSON API, normalize, and upsert. Malformed rows are skipped. Repeating the sync updates existing rows instead of duplicating them.
 - `POST /sources/lever/{site}/sync` — same sync pipeline against Lever's public postings JSON API, including pagination.
 - `POST /jobs/{id}/hard-filter` — deterministic eligibility vs the primary candidate. Missing salary/location/policy does not fail the job. See [scoring.md](scoring.md).
+- `POST /jobs/{id}/evaluate` — `JobEvaluationAgent` (OpenAI Agents SDK). Persists a grounded `JobEvaluation`. Requires `OPENAI_API_KEY` unless a test runner is injected.
 
 ## Testing
 

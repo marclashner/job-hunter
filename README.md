@@ -2,7 +2,7 @@
 
 Production-oriented scaffold for an AI job-search automation platform.
 
-This repository currently provides configuration, FastAPI, PostgreSQL, SQLAlchemy 2.x, Alembic, candidate evidence, job ingestion (including Greenhouse and Lever), and deterministic hard filters. LLM ranking and application-writing agents are not implemented yet.
+This repository currently provides configuration, FastAPI, PostgreSQL, SQLAlchemy 2.x, Alembic, candidate evidence, job ingestion (including Greenhouse and Lever), deterministic hard filters, and `JobEvaluationAgent` (OpenAI Agents SDK). Application-writing agents are not implemented.
 
 ## Requirements
 
@@ -58,6 +58,7 @@ See [docs/candidate-evidence.md](docs/candidate-evidence.md).
 - `POST /sources/greenhouse/{board_token}/sync` — Greenhouse Job Board JSON API (not HTML scraping). Upserts by `source` + `source_job_id`.
 - `POST /sources/lever/{site}/sync` — Lever postings JSON API. Same upsert rules.
 - `POST /jobs/{id}/hard-filter` — deterministic knock-out rules vs the primary candidate. Unlisted salary does not reject the job (`salary_unknown: true`). See [docs/scoring.md](docs/scoring.md).
+- `POST /jobs/{id}/evaluate` — JobEvaluationAgent. Structured `JobEvaluation`, evidence citations required, result stored in `job_evaluations`. See [docs/agents.md](docs/agents.md).
 
 Duplicate `source` + `source_job_id` on `POST /jobs` returns HTTP 409. Sync uses upsert instead. Duplicate descriptions share a `content_hash` and set `is_duplicate_description`.
 
@@ -71,6 +72,8 @@ All runtime settings are environment variables (see `.env.example`). Secrets bel
 | `APP_ENV` | Environment name (`development`, `test`, `production`) |
 | `DEBUG` | FastAPI debug flag |
 | `API_HOST` / `API_PORT` | Bind address used by operators; `make run` currently binds `0.0.0.0:8000` |
+| `OPENAI_API_KEY` | OpenAI key for JobEvaluationAgent (optional until you call `/jobs/{id}/evaluate`) |
+| `OPENAI_MODEL` | Agents SDK model id (default `gpt-4o-mini`) |
 
 Docker Compose publishes Postgres on **host port 5433** so it does not collide with a local Postgres on 5432.
 

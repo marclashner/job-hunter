@@ -100,6 +100,12 @@ class RemotePolicy(StrEnum):
     UNKNOWN = "unknown"
 
 
+class Recommendation(StrEnum):
+    APPLY = "apply"
+    REVIEW = "review"
+    REJECT = "reject"
+
+
 PROFILE_GROUNDABLE_FIELDS: tuple[str, ...] = (
     "name",
     "target_titles",

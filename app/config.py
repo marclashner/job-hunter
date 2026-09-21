@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     )
     database_pool_size: int = Field(default=5, ge=1)
     database_max_overflow: int = Field(default=10, ge=0)
+    openai_api_key: str | None = None
+    openai_model: str = "gpt-4o-mini"
+    openai_evaluation_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
+    openai_evaluation_seed: int = Field(default=42, ge=0)
 
     @property
     def sqlalchemy_database_uri(self) -> str:

@@ -11,10 +11,12 @@ from app.models.enums import (
     EvidenceSource,
     JobSource,
     Provenance,
+    Recommendation,
     RemotePolicy,
     RemotePreference,
     Seniority,
 )
+from app.models.evaluation import JobEvaluationRecord
 from app.models.job import Job
 
 __all__ = [
@@ -28,8 +30,10 @@ __all__ = [
     "EvidenceCategory",
     "EvidenceSource",
     "Job",
+    "JobEvaluationRecord",
     "JobSource",
     "Provenance",
+    "Recommendation",
     "RemotePolicy",
     "RemotePreference",
     "Seniority",
