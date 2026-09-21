@@ -11,7 +11,7 @@ The initial scaffold is a modular FastAPI service with a PostgreSQL persistence 
 - **`app/repositories`**: Query helpers used by services.
 - **`app/db`**: Engine, session factory, and declarative base.
 - **`app/config.py`**: `pydantic-settings` configuration. The process environment is the source of truth.
-- **`app/agents`, `app/sources`, `app/scoring`**: Agents and scoring are reserved. `app/sources` holds job-board adapters (`JobSourceAdapter`, shared HTTP client, Greenhouse and Lever JSON clients).
+- **`app/agents`, `app/sources`, `app/scoring`**: Agents are reserved. `app/sources` holds job-board adapters. `app/scoring` holds deterministic hard filters (`evaluate_hard_filters`); LLM ranking is not implemented.
 
 ## Runtime wiring
 
@@ -39,6 +39,7 @@ Ingested listings live in `jobs`. `source` + `source_job_id` is unique. `raw_dat
 - `GET /jobs/{id}` — single listing
 - `POST /sources/greenhouse/{board_token}/sync` — pull the public Greenhouse Job Board JSON API, normalize, and upsert. Malformed rows are skipped. Repeating the sync updates existing rows instead of duplicating them.
 - `POST /sources/lever/{site}/sync` — same sync pipeline against Lever's public postings JSON API, including pagination.
+- `POST /jobs/{id}/hard-filter` — deterministic eligibility vs the primary candidate. Missing salary/location/policy does not fail the job. See [scoring.md](scoring.md).
 
 ## Testing
 

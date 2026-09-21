@@ -10,6 +10,9 @@ from app.api.deps import get_db
 from app.models.enums import JobSource, RemotePolicy, Seniority
 from app.repositories.jobs import JobListFilters
 from app.schemas.job import JobCreate, JobListResponse, JobRead
+from app.scoring.hard_filters import HardFilterResult
+from app.services.candidate import ProfileNotFoundError
+from app.services.hard_filter import evaluate_job_hard_filter
 from app.services.jobs import DuplicateJobError, JobNotFoundError, create_job, get_job, list_jobs
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -50,6 +53,22 @@ def get_jobs(
         minimum_salary=minimum_salary,
     )
     return list_jobs(session, filters, limit=limit, offset=offset)
+
+
+@router.post("/{job_id}/hard-filter", response_model=HardFilterResult)
+def post_job_hard_filter(
+    job_id: UUID,
+    session: Annotated[Session, Depends(get_db)],
+) -> HardFilterResult:
+    try:
+        return evaluate_job_hard_filter(session, job_id)
+    except JobNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found") from exc
+    except ProfileNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Candidate profile not found. Run: uv run python scripts/seed_candidate.py",
+        ) from exc
 
 
 @router.get("/{job_id}", response_model=JobRead)

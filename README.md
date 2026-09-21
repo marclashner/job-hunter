@@ -2,7 +2,7 @@
 
 Production-oriented scaffold for an AI job-search automation platform.
 
-This repository currently provides the application shell: configuration, FastAPI, PostgreSQL, SQLAlchemy 2.x, Alembic, tests, and developer tooling. Job-search agents, sources, and scoring are not implemented yet.
+This repository currently provides configuration, FastAPI, PostgreSQL, SQLAlchemy 2.x, Alembic, candidate evidence, job ingestion (including Greenhouse and Lever), and deterministic hard filters. LLM ranking and application-writing agents are not implemented yet.
 
 ## Requirements
 
@@ -57,6 +57,7 @@ See [docs/candidate-evidence.md](docs/candidate-evidence.md).
 - `GET /jobs/{id}`
 - `POST /sources/greenhouse/{board_token}/sync` — Greenhouse Job Board JSON API (not HTML scraping). Upserts by `source` + `source_job_id`.
 - `POST /sources/lever/{site}/sync` — Lever postings JSON API. Same upsert rules.
+- `POST /jobs/{id}/hard-filter` — deterministic knock-out rules vs the primary candidate. Unlisted salary does not reject the job (`salary_unknown: true`). See [docs/scoring.md](docs/scoring.md).
 
 Duplicate `source` + `source_job_id` on `POST /jobs` returns HTTP 409. Sync uses upsert instead. Duplicate descriptions share a `content_hash` and set `is_duplicate_description`.
 
