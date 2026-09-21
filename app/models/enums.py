@@ -74,6 +74,26 @@ class ConfidenceLevel(StrEnum):
     LOW = "low"
 
 
+class JobSource(StrEnum):
+    """Origin of an ingested listing. External adapters are not implemented yet."""
+
+    MANUAL = "manual"
+    GREENHOUSE = "greenhouse"
+    LEVER = "lever"
+    ASHBY = "ashby"
+    LINKEDIN = "linkedin"
+    INDEED = "indeed"
+    COMPANY_SITE = "company_site"
+    OTHER = "other"
+
+
+class RemotePolicy(StrEnum):
+    REMOTE = "remote"
+    HYBRID = "hybrid"
+    ONSITE = "onsite"
+    UNKNOWN = "unknown"
+
+
 PROFILE_GROUNDABLE_FIELDS: tuple[str, ...] = (
     "name",
     "target_titles",

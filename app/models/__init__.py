@@ -9,10 +9,13 @@ from app.models.enums import (
     EmploymentType,
     EvidenceCategory,
     EvidenceSource,
+    JobSource,
     Provenance,
+    RemotePolicy,
     RemotePreference,
     Seniority,
 )
+from app.models.job import Job
 
 __all__ = [
     "PROFILE_GROUNDABLE_FIELDS",
@@ -24,7 +27,10 @@ __all__ = [
     "EmploymentType",
     "EvidenceCategory",
     "EvidenceSource",
+    "Job",
+    "JobSource",
     "Provenance",
+    "RemotePolicy",
     "RemotePreference",
     "Seniority",
 ]

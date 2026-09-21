@@ -5,12 +5,13 @@ The initial scaffold is a modular FastAPI service with a PostgreSQL persistence 
 ## Layers
 
 - **`app/api`**: HTTP routers and FastAPI dependencies. Routers stay thin and delegate to services.
-- **`app/services`**: Use-case logic (health and candidate profile/evidence).
+- **`app/services`**: Use-case logic (health, candidate profile/evidence, job ingestion).
 - **`app/schemas`**: Pydantic v2 request/response models. These are not ORM models.
-- **`app/models`**: SQLAlchemy ORM mappings (`CandidateProfile`, `CandidateEvidence`).
+- **`app/models`**: SQLAlchemy ORM mappings (`CandidateProfile`, `CandidateEvidence`, `Job`).
+- **`app/repositories`**: Query helpers used by services.
 - **`app/db`**: Engine, session factory, and declarative base.
 - **`app/config.py`**: `pydantic-settings` configuration. The process environment is the source of truth.
-- **`app/agents`, `app/sources`, `app/scoring`**: Reserved packages for later work.
+- **`app/agents`, `app/sources`, `app/scoring`**: Agents and scoring are reserved. `app/sources` holds job-board adapters (`JobSource` protocol, Greenhouse JSON client).
 
 ## Runtime wiring
 
@@ -28,6 +29,15 @@ Alembic uses the same `Settings.database_url` as the application. Do not duplica
 ## Candidate profile
 
 `CandidateProfile` stores structured preferences and experience fields. `CandidateEvidence` stores atomic claims. `GET /candidate/profile` wraps each field in a `GroundedValue` (`evidence_backed`, `derived`, or `unknown`) so agents cannot treat missing information as fact. Details are in `docs/candidate-evidence.md`.
+
+## Jobs
+
+Ingested listings live in `jobs`. `source` + `source_job_id` is unique. `raw_data` keeps the original payload. `content_hash` is a SHA-256 of the normalized description so duplicate text is detectable across sources.
+
+- `POST /jobs` — create (409 if the source identity already exists)
+- `GET /jobs` — filter by source, title, location, remote_policy, seniority, minimum_salary; paginate with `limit`/`offset`
+- `GET /jobs/{id}` — single listing
+- `POST /sources/greenhouse/{board_token}/sync` — pull the public Greenhouse Job Board JSON API, normalize, and upsert. Malformed rows are skipped. Repeating the sync updates existing rows instead of duplicating them.
 
 ## Testing
 
