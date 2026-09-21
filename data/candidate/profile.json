@@ -1,135 +1,256 @@
 {
   "key": "primary",
-  "name": "Jordan Hale",
+
+  "name": "Marc Lashner",
+
   "target_titles": [
     "Senior Software Engineer",
-    "Staff Software Engineer",
-    "Senior Backend Engineer"
+    "Senior Full-Stack Engineer",
+    "Senior Backend Engineer",
+    "Senior AI Engineer",
+    "Founding Software Engineer"
   ],
+
   "seniority": "senior",
-  "years_experience": 12,
-  "preferred_locations": ["Remote", "San Francisco, CA", "New York, NY"],
+
+  "years_experience": 7,
+
+  "preferred_locations": [
+    "Remote, US"
+  ],
+
   "remote_preference": "remote",
-  "minimum_compensation": { "amount": 185000, "currency": "USD", "period": "year" },
-  "target_compensation": { "amount": 230000, "currency": "USD", "period": "year" },
-  "employment_preferences": ["full_time"],
-  "industries": ["B2B SaaS", "healthcare", "developer tools"],
-  "preferred_company_stages": ["growth", "late", "public"],
+
+  "minimum_compensation": {
+    "amount": 180000,
+    "currency": "USD",
+    "period": "year"
+  },
+
+  "target_compensation": {
+    "amount": 220000,
+    "currency": "USD",
+    "period": "year"
+  },
+
+  "employment_preferences": [
+    "full_time",
+    "contract"
+  ],
+
+  "industries": [
+    "healthcare",
+    "healthtech",
+    "AI",
+    "B2B SaaS",
+    "insurance",
+    "payments",
+    "developer tools"
+  ],
+
+  "preferred_company_stages": [
+    "early",
+    "growth",
+    "late",
+    "public"
+  ],
+
   "technologies": [
     "Python",
     "TypeScript",
-    "Go",
+    "Java",
+    "React",
+    "Node.js",
+    "FastAPI",
+    "Spring Boot",
+    "GraphQL",
     "PostgreSQL",
-    "Redis",
-    "Kafka",
-    "Kubernetes",
     "AWS",
-    "gRPC"
+    "GCP",
+    "Docker",
+    "Kubernetes",
+    "Terraform",
+    "LLMs",
+    "agentic workflows"
   ],
+
   "domains": [
+    "full-stack product development",
     "backend services",
     "distributed systems",
-    "platform engineering",
-    "healthcare interoperability",
-    "applied AI in product workflows"
+    "healthcare technology",
+    "healthcare payments and insurance",
+    "healthcare operations",
+    "workflow automation",
+    "operational systems",
+    "applied AI",
+    "agentic systems"
   ],
-  "ai_experience": "Designed and shipped production LLM features for clinical operations, including retrieval-augmented generation over policy documents with evaluation harnesses and human review.",
-  "healthcare_experience": "Built FHIR-oriented integration services used by provider operations, with audit logging and least-privilege access to PHI-adjacent workflows.",
-  "leadership_experience": "Led a backend squad of six, ran design reviews, and mentored engineers through promotion packets without owning a people-manager title.",
-  "summary": "Senior backend and platform engineer who has spent a decade on high-reliability services, with grounded experience in healthcare integrations, applied AI features, and technical leadership.",
+
+  "ai_experience": "Building AI and LLM applications focused on workflow automation, agentic systems, and healthcare use cases. Current work includes an AI-powered job-search platform using Python, FastAPI, PostgreSQL, Docker, structured LLM workflows, and agentic orchestration. Uses AI-assisted development extensively for codebase exploration, architecture and implementation planning, coding, testing, debugging, review, and documentation. This represents current hands-on project experience rather than a claim of having previously shipped large-scale customer-facing LLM systems in production.",
+
+  "healthcare_experience": "Built production software across healthcare and healthcare-adjacent operations, including healthcare payments and financial workflows, HIPAA-compliant medical-record software, laboratory and manufacturing workflows, and operational automation. Experience includes designing systems that route and manage operational work across laboratories based on capacity, priority, order type, and operating constraints.",
+
+  "leadership_experience": "Technical and organizational leadership experience includes leading approximately 10 engineers at HealthOPX, developing and leading group and individual mentorship programs at Collective Health, operating in a Director of Product Development role earlier in career, and leading a 40-person rigging team outside of professional software engineering. Prefers a hands-on senior IC or technical-lead path rather than a pure people-management role.",
+
+  "summary": "Senior software engineer with 7+ years of experience building full-stack products, backend services, distributed systems, and operational software, with substantial experience in healthcare and healthcare-adjacent workflows. Strong background in end-to-end product ownership, reliability, system design, and cross-functional engineering. Currently focused on AI-enabled product development, LLM workflows, and agentic systems, with particular interest in applying modern AI to real-world healthcare and operational problems.",
+
   "field_grounding": {
     "name": {
       "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
+      "evidence_keys": [
+        "self-reported-profile",
+        "tenure"
+      ]
     },
+
     "target_titles": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "seniority": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["tenure"]
-    },
-    "years_experience": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["tenure"]
-    },
-    "preferred_locations": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "remote_preference": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "minimum_compensation": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "target_compensation": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "employment_preferences": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "industries": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "preferred_company_stages": {
-      "provenance": "evidence_backed",
-      "evidence_keys": ["self-reported-profile"]
-    },
-    "technologies": {
       "provenance": "derived",
       "evidence_keys": [
-        "distributed-systems",
-        "backend",
-        "healthcare",
-        "ai",
-        "performance",
-        "reliability",
-        "architecture"
+        "self-reported-profile",
+        "tenure",
+        "independent-ai-engineering"
       ],
-      "interpretation_notes": "Union of technologies listed on technical evidence records. Do not treat this list as expertise in uncited tools."
+      "interpretation_notes": "Senior Software Engineer is directly supported. Full-stack, backend, AI, and founding-engineer titles reflect current job-search targets and technical background rather than prior formal job titles."
     },
+
+    "seniority": {
+      "provenance": "evidence_backed",
+      "evidence_keys": [
+        "tenure"
+      ]
+    },
+
+    "years_experience": {
+      "provenance": "evidence_backed",
+      "evidence_keys": [
+        "tenure"
+      ],
+      "interpretation_notes": "Current resume explicitly positions the candidate as having 7+ years of software engineering experience."
+    },
+
+    "preferred_locations": {
+      "provenance": "evidence_backed",
+      "evidence_keys": [
+        "self-reported-profile"
+      ],
+      "interpretation_notes": "Remote within the United States is the primary target. Candidate has repeatedly prioritized remote work."
+    },
+
+    "remote_preference": {
+      "provenance": "evidence_backed",
+      "evidence_keys": [
+        "self-reported-profile"
+      ]
+    },
+
+    "minimum_compensation": {
+      "provenance": "derived",
+      "evidence_keys": [
+        "self-reported-profile"
+      ],
+      "interpretation_notes": "180000 USD is consistent with the candidate's current targeting and prior compensation of approximately 225000 USD, but should be treated as a search preference rather than a rigid floor unless explicitly confirmed."
+    },
+
+    "target_compensation": {
+      "provenance": "derived",
+      "evidence_keys": [
+        "self-reported-profile"
+      ],
+      "interpretation_notes": "220000 USD reflects current compensation targeting and prior compensation around 225000 USD. Total compensation, equity, role quality, and remote flexibility may affect acceptable base salary."
+    },
+
+    "employment_preferences": {
+      "provenance": "derived",
+      "evidence_keys": [
+        "self-reported-profile"
+      ],
+      "interpretation_notes": "Full-time is the primary target. Contract work is included because short-term contract or consulting work is being considered as an additional path back into current professional experience."
+    },
+
+    "industries": {
+      "provenance": "derived",
+      "evidence_keys": [
+        "healthopx-healthcare",
+        "collective-health-payments",
+        "independent-ai-engineering",
+        "self-reported-profile"
+      ],
+      "interpretation_notes": "Healthcare, healthtech, AI, insurance, and payments are strongly supported by experience or stated interest. B2B SaaS and developer tools represent broader target categories rather than deep domain specialization."
+    },
+
+    "preferred_company_stages": {
+      "provenance": "unknown",
+      "evidence_keys": [],
+      "interpretation_notes": "Candidate has considered founding-engineer, startup, growth-company, and established-company opportunities. There is not enough evidence to establish a genuine company-stage preference."
+    },
+
+    "technologies": {
+      "provenance": "evidence_backed",
+      "evidence_keys": [
+        "tenure",
+        "production-stack",
+        "dandy-lab-routing",
+        "healthopx-healthcare",
+        "independent-ai-engineering"
+      ],
+      "interpretation_notes": "Technology list is supported by the current resume. Depth and recency vary by technology. LLMs and agentic workflows represent current project work and should not automatically be interpreted as years of production AI experience."
+    },
+
     "domains": {
       "provenance": "derived",
       "evidence_keys": [
-        "distributed-systems",
-        "backend",
-        "healthcare",
-        "ai",
-        "architecture",
-        "product"
+        "dandy-lab-routing",
+        "production-stack",
+        "healthopx-healthcare",
+        "collective-health-payments",
+        "independent-ai-engineering",
+        "collective-health-product-engineering",
+        "breathe-product"
       ],
-      "interpretation_notes": "Domain labels inferred from evidence categories and claims, not from an independent skills inventory."
+      "interpretation_notes": "Domain labels synthesize production experience and current project work. Applied AI and agentic systems are current areas of hands-on development rather than long-tenured production specializations."
     },
+
     "ai_experience": {
       "provenance": "evidence_backed",
-      "evidence_keys": ["ai"]
+      "evidence_keys": [
+        "independent-ai-engineering",
+        "ai-assisted-development"
+      ],
+      "interpretation_notes": "Evidence supports active hands-on AI/LLM and agentic development. Do not transform this into claims that the candidate shipped production-scale customer-facing AI systems at previous employers unless additional evidence is added."
     },
+
     "healthcare_experience": {
       "provenance": "evidence_backed",
-      "evidence_keys": ["healthcare"]
+      "evidence_keys": [
+        "healthopx-healthcare",
+        "collective-health-payments",
+        "dandy-lab-routing",
+        "dandy-labtrack-reliability"
+      ]
     },
+
     "leadership_experience": {
       "provenance": "evidence_backed",
-      "evidence_keys": ["leadership", "mentorship"]
+      "evidence_keys": [
+        "healthopx-leadership",
+        "collective-health-mentorship"
+      ],
+      "interpretation_notes": "Leadership spans professional engineering, mentorship, and non-software organizational leadership. Do not represent all leadership examples as formal engineering management."
     },
+
     "summary": {
       "provenance": "derived",
       "evidence_keys": [
         "tenure",
-        "distributed-systems",
-        "backend",
-        "healthcare",
-        "ai",
-        "leadership"
+        "dandy-lab-routing",
+        "production-stack",
+        "healthopx-healthcare",
+        "collective-health-payments",
+        "independent-ai-engineering",
+        "healthopx-leadership"
       ],
-      "interpretation_notes": "Narrative synthesis of cited evidence. If a job requires a skill not covered by those records, treat it as unknown."
+      "interpretation_notes": "Narrative synthesis of supported experience and current technical direction. Job-specific claims should still be grounded in individual evidence records."
     }
   }
 }

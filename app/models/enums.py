@@ -56,6 +56,7 @@ class EvidenceCategory(StrEnum):
     PRODUCT = "product"
     MENTORSHIP = "mentorship"
     SELF_REPORTED = "self_reported"
+    EXPERIENCE = "experience"
 
 
 class EvidenceSource(StrEnum):
@@ -66,6 +67,11 @@ class EvidenceSource(StrEnum):
     SELF_REPORTED = "self_reported"
     REFERENCE = "reference"
     OTHER = "other"
+    RESUME_AND_INTERVIEW_HISTORY = "resume_and_interview_history"
+    INTERVIEW_HISTORY = "interview_history"
+    RESUME_AND_SELF_REPORTED = "resume_and_self_reported"
+    CURRENT_PROJECT = "current_project"
+    DERIVED_FROM_RESUME_EVIDENCE = "derived_from_resume_evidence"
 
 
 class ConfidenceLevel(StrEnum):

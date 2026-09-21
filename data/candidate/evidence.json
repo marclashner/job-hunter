@@ -2,163 +2,351 @@
   {
     "key": "self-reported-profile",
     "category": "self_reported",
-    "claim": "Candidate-stated identity, target roles, location, compensation, and company preferences.",
-    "detailed_description": "Placeholder self-report for the seed profile named Jordan Hale. Replace this record with the real candidate's stated preferences. These are goals and constraints, not proof of skill.",
+    "claim": "Marc Lashner is targeting senior software engineering roles with a strong preference for remote work, high ownership, strong engineering teams, and opportunities involving healthcare, AI, or technically challenging product development.",
+    "detailed_description": "Current job search is primarily focused on Senior Software Engineer, Senior Full-Stack Engineer, Senior Backend Engineer, applied AI engineering, and selected founding-engineer opportunities. Remote work is strongly preferred. Healthcare and AI are especially interesting domains, but the search is not restricted to them.",
     "technologies": [],
     "measurable_outcomes": [],
     "source": "self_reported",
     "confidence": "high",
-    "tags": ["preferences", "placeholder-seed"]
+    "tags": [
+      "preferences",
+      "job-search",
+      "remote",
+      "healthcare",
+      "ai"
+    ]
   },
   {
     "key": "tenure",
-    "category": "self_reported",
-    "claim": "About 12 years of professional software engineering experience at senior scope.",
-    "detailed_description": "Resume-style tenure for the placeholder profile. The candidate has operated as a senior engineer: owning services, on-call, and cross-team design. This is not a staff-or-principal claim.",
+    "category": "experience",
+    "claim": "7+ years of professional software engineering experience, primarily at senior scope, plus current independent AI and product development work.",
+    "detailed_description": "Professional history includes Facebook Software Engineering Intern (May 2017-August 2017), Collective Health Senior Software Engineer (September 2018-April 2022), HealthOPX Director of Product Development part-time (November 2020-November 2022), Dandy Senior Software Engineer (April 2022-September 2025), and Independent Software Engineer focused on AI and product development from September 2025 to present. Current hands-on engineering activity resumed during 2026 after a period primarily devoted to travel and personal projects.",
     "technologies": [],
-    "measurable_outcomes": ["12 years professional experience"],
+    "measurable_outcomes": [
+      "7+ years professional software engineering experience",
+      "Senior Software Engineer experience at Collective Health and Dandy"
+    ],
     "source": "resume",
     "confidence": "high",
-    "tags": ["seniority", "placeholder-seed"]
+    "tags": [
+      "seniority",
+      "career-history"
+    ]
   },
   {
-    "key": "distributed-systems",
+    "key": "dandy-lab-routing",
     "category": "distributed_systems",
-    "claim": "Designed multi-service platforms with asynchronous messaging and explicit consistency boundaries.",
-    "detailed_description": "Led the design of an order-processing platform that split monolith workflows into independently deployable services. Introduced outbox publishing to Kafka, idempotent consumers, and a reconciliation job for failed deliveries. Documented consistency expectations per workflow rather than assuming global transactions.",
-    "technologies": ["PostgreSQL", "Kafka", "Go", "gRPC", "Kubernetes"],
-    "measurable_outcomes": [
-      "Cut cross-service incident rate related to duplicate processing by 70% over two quarters",
-      "Reduced p95 checkout completion time from 1.8s to 420ms after removing chatty synchronous calls"
-    ],
-    "source": "resume",
-    "confidence": "high",
-    "tags": ["platform", "messaging", "placeholder-seed"]
-  },
-  {
-    "key": "backend",
-    "category": "backend",
-    "claim": "Built and operated production HTTP/gRPC APIs with PostgreSQL as the system of record.",
-    "detailed_description": "Owned customer-facing and internal APIs in Python and Go, including schema migrations, authorization, and pagination. Established request-id propagation, structured logging, and contract tests against OpenAPI/Protobuf definitions.",
-    "technologies": ["Python", "Go", "PostgreSQL", "Redis", "AWS"],
-    "measurable_outcomes": [
-      "Maintained 99.95% monthly availability on a core billing API",
-      "Migrated 40+ endpoints to versioned contracts without a breaking production incident"
-    ],
-    "source": "resume",
-    "confidence": "high",
-    "tags": ["apis", "data", "placeholder-seed"]
-  },
-  {
-    "key": "healthcare",
-    "category": "healthcare",
-    "claim": "Shipped FHIR-oriented integration services for provider operations.",
-    "detailed_description": "Implemented inbound and outbound clinical operations interfaces that mapped internal domain events to FHIR resources. Added audit trails, scoped service accounts, and replayable ingestion. Worked with compliance on data-minimization; this seed does not claim a specific license or clinical role.",
-    "technologies": ["Python", "PostgreSQL", "AWS", "FHIR"],
-    "measurable_outcomes": [
-      "Onboarded 3 hospital systems onto a shared integration adapter",
-      "Reduced manual chart-reconciliation tickets by 45% after automated matching went live"
-    ],
-    "source": "resume",
-    "confidence": "medium",
-    "tags": ["fhir", "integrations", "placeholder-seed"]
-  },
-  {
-    "key": "ai",
-    "category": "ai",
-    "claim": "Shipped production LLM features with retrieval, evaluation, and human review.",
-    "detailed_description": "Built an internal assistant that answers policy questions over a curated corpus. Chunked documents, stored embeddings, and required citation of source passages. Added offline eval sets and a reviewer queue for low-confidence answers. This is applied product AI, not foundational model research.",
-    "technologies": ["Python", "PostgreSQL", "TypeScript", "AWS"],
-    "measurable_outcomes": [
-      "Deflected 30% of tier-1 policy questions from a 12-person operations team",
-      "Kept hallucination rate under 2% on a 200-item gold evaluation set before launch"
-    ],
-    "source": "portfolio",
-    "confidence": "high",
-    "tags": ["llm", "rag", "placeholder-seed"]
-  },
-  {
-    "key": "leadership",
-    "category": "leadership",
-    "claim": "Led a backend squad of six as a technical lead without a people-manager title.",
-    "detailed_description": "Set quarterly technical goals, facilitated design reviews, sequenced delivery with product, and represented the team in incident reviews. Hired via interview loops and wrote promotion evidence for two engineers. Not a Head of Engineering or VP claim.",
+    "claim": "Designed and built production systems for routing dental manufacturing orders across laboratories based on operational constraints.",
+    "detailed_description": "Worked on Dandy's laboratory and manufacturing systems, including order-routing workflows that allocated work based on lab capacity, priority, order type, operating hours, and overflow behavior. The system supported operational decision-making across multiple laboratory destinations and required reasoning about changing capacity and real-world manufacturing constraints.",
     "technologies": [],
     "measurable_outcomes": [
-      "Team delivered 4 of 5 committed platform epics in two consecutive halves",
-      "Two mentees promoted from mid-level to senior"
+      "Supported production dental-lab manufacturing workflows",
+      "Contributed to operational improvements associated with internal lab contribution margin improving from approximately -20% to +40%"
     ],
-    "source": "resume",
+    "source": "resume_and_interview_history",
     "confidence": "high",
-    "tags": ["tech-lead", "placeholder-seed"]
+    "tags": [
+      "dandy",
+      "distributed-systems",
+      "routing",
+      "healthcare",
+      "manufacturing",
+      "operations",
+      "architecture"
+    ]
   },
   {
-    "key": "performance",
-    "category": "performance",
-    "claim": "Diagnosed and removed latency from hot API and database paths.",
-    "detailed_description": "Used tracing and EXPLAIN analysis to find N+1 query patterns and lock contention on account updates. Introduced covering indexes, batch endpoints, and a Redis read-through cache with explicit TTLs.",
-    "technologies": ["PostgreSQL", "Redis", "Python", "AWS"],
-    "measurable_outcomes": [
-      "Dropped p99 for the account-read endpoint from 900ms to 120ms",
-      "Reduced primary database CPU from 80% to 35% at peak"
-    ],
-    "source": "resume",
-    "confidence": "high",
-    "tags": ["latency", "databases", "placeholder-seed"]
-  },
-  {
-    "key": "reliability",
+    "key": "dandy-labtrack-reliability",
     "category": "reliability",
-    "claim": "Owned on-call and raised service reliability through SLOs and load shedding.",
-    "detailed_description": "Defined SLIs for a payments-adjacent API, added dashboards and error-budget policy, and implemented concurrency limits plus retry budgets on downstream calls. Wrote runbooks used by a follow-the-sun rotation.",
-    "technologies": ["Kubernetes", "AWS", "PostgreSQL", "Go"],
-    "measurable_outcomes": [
-      "Reduced pages-per-week from 11 to 3 over two quarters",
-      "Zero Sev-1 incidents in the two quarters after load shedding shipped"
-    ],
-    "source": "resume",
-    "confidence": "high",
-    "tags": ["sre", "oncall", "placeholder-seed"]
-  },
-  {
-    "key": "architecture",
-    "category": "architecture",
-    "claim": "Led a strangler-fig migration from a monolith module to an extracted billing service.",
-    "detailed_description": "Wrote the RFC, dual-wrote critical tables, and flipped read traffic behind a feature flag. Kept a rollback path for six weeks. Coordinated with finance on invoice correctness during cutover.",
-    "technologies": ["Python", "PostgreSQL", "Kafka", "Kubernetes"],
-    "measurable_outcomes": [
-      "Completed cutover in 14 weeks with no invoice-mismatch Sev-1",
-      "Enabled independent deploys that cut billing-service release lead time from weekly to daily"
-    ],
-    "source": "resume",
-    "confidence": "high",
-    "tags": ["migrations", "rfc", "placeholder-seed"]
-  },
-  {
-    "key": "product",
-    "category": "product",
-    "claim": "Partnered with product and design to scope platform work around user-visible outcomes.",
-    "detailed_description": "Turned a vague 'make onboarding faster' goal into an API and admin-tool slice, including event instrumentation used by product analytics. Pushed back on a rewrite when a staged extraction met the deadline.",
-    "technologies": ["TypeScript", "Python"],
-    "measurable_outcomes": [
-      "Activation time for new workspaces fell from 3 days to same-day for 80% of signups",
-      "Avoided a two-quarter rewrite by delivering an incremental extraction"
-    ],
-    "source": "resume",
-    "confidence": "medium",
-    "tags": ["collaboration", "placeholder-seed"]
-  },
-  {
-    "key": "mentorship",
-    "category": "mentorship",
-    "claim": "Mentored engineers through design, on-call, and promotion writing.",
-    "detailed_description": "Ran a weekly review clinic, pair-debugged production issues, and coached written design docs. Mentorship evidence is limited to IC coaching; there is no claim of org-wide talent programs.",
+    "claim": "Replaced or substantially improved unreliable laboratory workflow infrastructure, dramatically reducing operational failures.",
+    "detailed_description": "Worked on replacement and reliability improvements for Dandy laboratory workflow systems. A legacy workflow had frequent early-morning failures that required engineering or operational intervention. The redesigned workflow significantly reduced failure frequency and the amount of manual intervention required.",
     "technologies": [],
     "measurable_outcomes": [
-      "Four mentees reached independent on-call within a quarter",
-      "Co-authored two successful senior promotion packets"
+      "Reduced workflow errors from approximately 20% to less than 1%",
+      "Reduced manual intervention from more than 20 hours per week to less than 1 hour per week"
     ],
-    "source": "reference",
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "dandy",
+      "reliability",
+      "operations",
+      "healthcare",
+      "lab-workflows",
+      "incident-reduction"
+    ]
+  },
+  {
+    "key": "dandy-operational-economics",
+    "category": "product",
+    "claim": "Engineering work on laboratory workflows contributed to substantial improvements in the economics of Dandy's internal laboratory operations.",
+    "detailed_description": "Built and improved software supporting dental laboratory manufacturing and operational workflows. The work was tied to improvements in reliability, routing, automation, and operational efficiency rather than being isolated technical infrastructure.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Internal lab contribution margin improved from approximately -20% to +40%"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "dandy",
+      "product",
+      "business-impact",
+      "operations",
+      "healthcare",
+      "manufacturing"
+    ]
+  },
+  {
+    "key": "dandy-performance",
+    "category": "performance",
+    "claim": "Improved the performance and usability of operational order-creation workflows.",
+    "detailed_description": "Diagnosed slow operational workflows in Dandy's order-creation path and improved them through techniques including caching, filtering, and workflow shortcuts. The work focused on reducing user-visible latency in a frequently used internal operational workflow.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Improved an order-creation workflow that previously took more than 20 seconds"
+    ],
+    "source": "interview_history",
     "confidence": "medium",
-    "tags": ["coaching", "placeholder-seed"]
+    "tags": [
+      "dandy",
+      "performance",
+      "latency",
+      "product",
+      "operations"
+    ]
+  },
+  {
+    "key": "collective-health-payments",
+    "category": "backend",
+    "claim": "Built full-stack production software for healthcare payments and financial workflows at Collective Health.",
+    "detailed_description": "Worked as a Senior Software Engineer at Collective Health on a healthcare payments platform. The system generated and managed large volumes of invoices representing substantial client payment flows. Work spanned product and backend concerns in a regulated healthcare environment.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Platform generated hundreds of invoices",
+      "Invoices represented millions of dollars in client payments"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "collective-health",
+      "healthcare",
+      "payments",
+      "backend",
+      "full-stack",
+      "financial-workflows"
+    ]
+  },
+  {
+    "key": "collective-health-product-engineering",
+    "category": "product",
+    "claim": "Owned and delivered user-facing and operational healthcare software across the stack at Collective Health.",
+    "detailed_description": "Worked in a product-oriented senior engineering role on healthcare payment workflows, combining backend and frontend implementation with cross-functional product development. Experience involved translating healthcare and financial requirements into production software rather than operating solely as an infrastructure engineer.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Production workflows supported millions of dollars in client payments"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "collective-health",
+      "product-engineering",
+      "full-stack",
+      "healthcare",
+      "payments",
+      "cross-functional"
+    ]
+  },
+  {
+    "key": "healthopx-leadership",
+    "category": "leadership",
+    "claim": "Led a team of approximately 10 engineers while combining engineering leadership, architecture, product management, and recruiting responsibilities at HealthOPX.",
+    "detailed_description": "Served part-time as Director of Product Development at HealthOPX from November 2020 to November 2022. Led approximately 10 engineers building healthcare software. Responsibilities included technical direction, product development, architecture, coordination, and recruiting.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Led approximately 10 engineers"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "healthopx",
+      "leadership",
+      "technical-leadership",
+      "architecture",
+      "product-management",
+      "recruiting"
+    ]
+  },
+  {
+    "key": "healthopx-healthcare",
+    "category": "healthcare",
+    "claim": "Led development of HIPAA-compliant medical-record software at HealthOPX.",
+    "detailed_description": "HealthOPX work involved building software handling medical-record workflows in a HIPAA-regulated context. The role combined product development and engineering leadership.",
+    "technologies": [],
+    "measurable_outcomes": [],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "healthopx",
+      "healthcare",
+      "hipaa",
+      "medical-records",
+      "product-development"
+    ]
+  },
+  {
+    "key": "collective-health-mentorship",
+    "category": "mentorship",
+    "claim": "Created and led structured engineering mentorship efforts at Collective Health.",
+    "detailed_description": "Developed and led group and individual mentorship programs through Collective Health's Collective Grow employee resource group. Served in a leadership role for the program and worked on structured mentorship curriculum, including collaboration with an educator experienced in leadership coursework.",
+    "technologies": [],
+    "measurable_outcomes": [],
+    "source": "resume_and_self_reported",
+    "confidence": "high",
+    "tags": [
+      "collective-health",
+      "mentorship",
+      "leadership",
+      "engineering-development",
+      "community"
+    ]
+  },
+  {
+    "key": "facebook-performance",
+    "category": "performance",
+    "claim": "Built engineering tooling at Facebook that substantially reduced analysis time.",
+    "detailed_description": "During a Software Engineering Internship at Facebook in 2017, built or improved engineering analysis tooling that made an existing analysis workflow significantly faster.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Cut analysis-session time approximately in half"
+    ],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "facebook",
+      "performance",
+      "developer-tools",
+      "internship"
+    ]
+  },
+  {
+    "key": "production-stack",
+    "category": "backend",
+    "claim": "Professional and project experience spans modern full-stack, backend, cloud, database, and infrastructure technologies.",
+    "detailed_description": "Resume-listed technologies include Python, FastAPI, Java with Spring Boot, TypeScript, Node.js, React and React Native, GraphQL, PostgreSQL, MySQL, DynamoDB, AWS, GCP, Docker, Kubernetes, and Terraform. The resume establishes experience with this technology set, but it does not establish equal depth, recency, or production scale for every technology.",
+    "technologies": [
+      "Python",
+      "FastAPI",
+      "Java",
+      "Spring Boot",
+      "TypeScript",
+      "Node.js",
+      "React",
+      "React Native",
+      "GraphQL",
+      "PostgreSQL",
+      "MySQL",
+      "DynamoDB",
+      "AWS",
+      "GCP",
+      "Docker",
+      "Kubernetes",
+      "Terraform"
+    ],
+    "measurable_outcomes": [],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "technology-stack",
+      "backend",
+      "frontend",
+      "cloud",
+      "infrastructure"
+    ]
+  },
+  {
+    "key": "independent-ai-engineering",
+    "category": "ai",
+    "claim": "Currently building hands-on AI and agentic software projects using modern LLM-assisted engineering workflows.",
+    "detailed_description": "Current independent engineering work focuses on AI-enabled products and agentic workflows. Work includes Python, FastAPI, PostgreSQL, Docker, structured LLM outputs, deterministic validation, automated testing, and human-in-the-loop workflow design. A current major project is an autonomous job-search platform that ingests opportunities, evaluates candidate-job fit using structured evidence, prepares tailored materials, and retains human approval for consequential external actions.",
+    "technologies": [
+      "Python",
+      "FastAPI",
+      "PostgreSQL",
+      "Docker",
+      "LLMs",
+      "structured outputs",
+      "agentic workflows"
+    ],
+    "measurable_outcomes": [],
+    "source": "current_project",
+    "confidence": "high",
+    "tags": [
+      "ai",
+      "llm",
+      "agents",
+      "independent-engineering",
+      "fastapi",
+      "portfolio"
+    ]
+  },
+  {
+    "key": "ai-assisted-development",
+    "category": "ai",
+    "claim": "Uses modern AI coding tools as part of an active software-development workflow.",
+    "detailed_description": "Current development workflow incorporates AI tools for codebase exploration, architecture and implementation planning, implementation assistance, testing, debugging, review, and documentation. This evidence demonstrates practical AI-assisted software development rather than production machine-learning research or years of production LLM ownership.",
+    "technologies": [
+      "Cursor",
+      "LLMs"
+    ],
+    "measurable_outcomes": [],
+    "source": "self_reported",
+    "confidence": "high",
+    "tags": [
+      "ai",
+      "developer-tools",
+      "cursor",
+      "software-development"
+    ]
+  },
+  {
+    "key": "breathe-product",
+    "category": "product",
+    "claim": "Built a scheduling application using Spring Boot and React Native.",
+    "detailed_description": "Built the Breathe scheduling application as a product-oriented software project, using a Spring Boot backend and React Native client.",
+    "technologies": [
+      "Java",
+      "Spring Boot",
+      "React Native"
+    ],
+    "measurable_outcomes": [],
+    "source": "resume",
+    "confidence": "high",
+    "tags": [
+      "breathe",
+      "full-stack",
+      "mobile",
+      "product-development"
+    ]
+  },
+  {
+    "key": "cross-functional-ownership",
+    "category": "product",
+    "claim": "Has repeatedly worked across engineering, product, operations, and domain stakeholders to turn ambiguous operational problems into production software.",
+    "detailed_description": "Across Dandy, Collective Health, and HealthOPX, work has involved more than isolated implementation: understanding operational or product problems, designing technical solutions, collaborating with non-engineering stakeholders, and owning delivery and production outcomes. Strong examples include dental-lab workflow automation, healthcare payment workflows, and medical-record software.",
+    "technologies": [],
+    "measurable_outcomes": [
+      "Dandy workflow errors reduced from approximately 20% to less than 1%",
+      "Dandy manual intervention reduced from more than 20 hours per week to less than 1 hour per week",
+      "Healthcare payment workflows represented millions of dollars in client payments"
+    ],
+    "source": "derived_from_resume_evidence",
+    "confidence": "high",
+    "tags": [
+      "product",
+      "ownership",
+      "ambiguity",
+      "cross-functional",
+      "operations"
+    ]
   }
 ]
