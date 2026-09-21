@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import Select, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.enums import JobSource, RemotePolicy, Seniority
+from app.models.evaluation import JobEvaluationRecord
 from app.models.job import Job
 
 
@@ -57,6 +59,31 @@ class JobRepository:
             .having(func.count(Job.id) > 1)
         )
         return set(self._session.scalars(statement).all())
+
+    def list_for_evaluation_batch(
+        self,
+        *,
+        source: str | None,
+        discovered_after: datetime | None,
+        discovered_before: datetime | None,
+        unevaluated_only: bool,
+        limit: int,
+    ) -> list[Job]:
+        statement = select(Job)
+        if source is not None:
+            statement = statement.where(Job.source == source)
+        if discovered_after is not None:
+            statement = statement.where(Job.discovered_at >= discovered_after)
+        if discovered_before is not None:
+            statement = statement.where(Job.discovered_at <= discovered_before)
+        if unevaluated_only:
+            evaluated_ids = select(JobEvaluationRecord.job_id).distinct()
+            statement = statement.where(Job.id.not_in(evaluated_ids))
+        return list(
+            self._session.scalars(
+                statement.order_by(Job.discovered_at.desc(), Job.created_at.desc()).limit(limit)
+            ).all()
+        )
 
     def list_page(
         self,

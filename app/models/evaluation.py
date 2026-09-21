@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -45,6 +46,12 @@ class JobEvaluationRecord(Base):
     reasoning: Mapped[str] = mapped_column(Text, nullable=False)
     hard_filter: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
     model: Mapped[str] = mapped_column(String(128), nullable=False)
+    usage_input_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    usage_output_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    usage_total_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    usage_requests: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    estimated_cost_usd: Mapped[Decimal | None] = mapped_column(Numeric(12, 6), nullable=True)
+    usage_metadata: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

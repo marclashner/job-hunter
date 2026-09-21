@@ -4,6 +4,8 @@ Hard filters are the first, deterministic gate. They decide whether a listing is
 
 `POST /jobs/{id}/hard-filter` loads the job and the primary `CandidateProfile`, then returns a `HardFilterResult`.
 
+`POST /evaluation/batch` runs the same engine first and does **not** send failed jobs to `JobEvaluationAgent`. Those rows are persisted as `recommendation=reject` with `model=hard-filter` so they are not picked up again unless `reevaluate` is set.
+
 ## Result contract
 
 | Field | Meaning |

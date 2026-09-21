@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import dataclass
-from typing import Protocol
+from dataclasses import dataclass, field
+from typing import Any, Protocol
 from uuid import UUID
 
 from agents import (
@@ -75,10 +75,28 @@ class JobEvaluationContext:
     hard_filter: HardFilterResult
 
 
+@dataclass(frozen=True, slots=True)
+class EvaluationUsage:
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+    requests: int = 0
+    estimated_cost_usd: float | None = None
+    raw: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class EvaluationRunResult:
+    evaluation: JobEvaluation
+    usage: EvaluationUsage | None = None
+
+
 class JobEvaluationRunner(Protocol):
     """Production uses the OpenAI Agents SDK; tests inject a stub."""
 
-    def evaluate(self, user_input: str, context: JobEvaluationContext) -> JobEvaluation: ...
+    def evaluate(
+        self, user_input: str, context: JobEvaluationContext
+    ) -> JobEvaluation | EvaluationRunResult: ...
 
 
 class EvaluationConfigurationError(RuntimeError):
@@ -149,7 +167,7 @@ def build_evaluation_input(
 class OpenAIAgentsEvaluationRunner:
     """Runs JobEvaluationAgent via the OpenAI Agents SDK."""
 
-    def evaluate(self, user_input: str, context: JobEvaluationContext) -> JobEvaluation:
+    def evaluate(self, user_input: str, context: JobEvaluationContext) -> EvaluationRunResult:
         settings = get_settings()
         if not settings.openai_api_key:
             raise EvaluationConfigurationError(
@@ -170,5 +188,41 @@ class OpenAIAgentsEvaluationRunner:
             raise EvaluationAgentError("JobEvaluationAgent run failed") from exc
         output = result.final_output
         if isinstance(output, JobEvaluation):
-            return output
-        return JobEvaluation.model_validate(output)
+            evaluation = output
+        else:
+            evaluation = JobEvaluation.model_validate(output)
+        usage = usage_from_run_result(result, settings)
+        return EvaluationRunResult(evaluation=evaluation, usage=usage)
+
+
+def usage_from_run_result(result: object, settings: Settings) -> EvaluationUsage | None:
+    wrapper = getattr(result, "context_wrapper", None)
+    usage = getattr(wrapper, "usage", None) if wrapper is not None else None
+    if usage is None:
+        return None
+    input_tokens = int(getattr(usage, "input_tokens", 0) or 0)
+    output_tokens = int(getattr(usage, "output_tokens", 0) or 0)
+    total_tokens = int(getattr(usage, "total_tokens", 0) or (input_tokens + output_tokens))
+    requests = int(getattr(usage, "requests", 0) or 0)
+    cost = estimate_cost_usd(input_tokens, output_tokens, settings)
+    return EvaluationUsage(
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        total_tokens=total_tokens,
+        requests=requests,
+        estimated_cost_usd=cost,
+        raw={
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_tokens": total_tokens,
+            "requests": requests,
+        },
+    )
+
+
+def estimate_cost_usd(input_tokens: int, output_tokens: int, settings: Settings) -> float:
+    return round(
+        (input_tokens / 1_000_000) * settings.openai_input_usd_per_million
+        + (output_tokens / 1_000_000) * settings.openai_output_usd_per_million,
+        6,
+    )

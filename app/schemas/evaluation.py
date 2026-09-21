@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
 
-from app.models.enums import Recommendation
+from app.models.enums import JobSource, Recommendation
 from app.scoring.hard_filters import HardFilterResult
 
 
@@ -54,3 +54,49 @@ class JobEvaluationRead(JobEvaluation):
     hard_filter: HardFilterResult
     created_at: datetime
     updated_at: datetime
+
+
+class BatchEvaluationRequest(BaseModel):
+    source: JobSource | None = None
+    discovered_after: datetime | None = None
+    discovered_before: datetime | None = None
+    limit: int | None = Field(default=None, ge=1, le=500)
+    dry_run: bool = False
+    reevaluate: bool = False
+    concurrency: int | None = Field(default=None, ge=1, le=16)
+
+    @model_validator(mode="after")
+    def date_range_is_ordered(self) -> BatchEvaluationRequest:
+        if (
+            self.discovered_after is not None
+            and self.discovered_before is not None
+            and self.discovered_after > self.discovered_before
+        ):
+            raise ValueError("discovered_after must be less than or equal to discovered_before")
+        return self
+
+
+class BatchEvaluationError(BaseModel):
+    job_id: UUID | None = None
+    stage: str
+    detail: str
+
+
+class ModelUsageSummary(BaseModel):
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+    requests: int = 0
+    estimated_cost_usd: float | None = None
+
+
+class BatchEvaluationResult(BaseModel):
+    discovered: int
+    hard_filtered: int
+    evaluated: int
+    apply: int
+    review: int
+    reject: int
+    errors: list[BatchEvaluationError]
+    dry_run: bool = False
+    usage: ModelUsageSummary = Field(default_factory=ModelUsageSummary)

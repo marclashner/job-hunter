@@ -59,6 +59,7 @@ See [docs/candidate-evidence.md](docs/candidate-evidence.md).
 - `POST /sources/lever/{site}/sync` — Lever postings JSON API. Same upsert rules.
 - `POST /jobs/{id}/hard-filter` — deterministic knock-out rules vs the primary candidate. Unlisted salary does not reject the job (`salary_unknown: true`). See [docs/scoring.md](docs/scoring.md).
 - `POST /jobs/{id}/evaluate` — JobEvaluationAgent. Structured `JobEvaluation`, evidence citations required, result stored in `job_evaluations`. See [docs/agents.md](docs/agents.md).
+- `POST /evaluation/batch` — evaluate many unevaluated jobs in-process (hard filters, then agent). Optional `source`, date range, `limit`, `dry_run`, `reevaluate`, `concurrency`.
 
 Duplicate `source` + `source_job_id` on `POST /jobs` returns HTTP 409. Sync uses upsert instead. Duplicate descriptions share a `content_hash` and set `is_duplicate_description`.
 
@@ -72,8 +73,10 @@ All runtime settings are environment variables (see `.env.example`). Secrets bel
 | `APP_ENV` | Environment name (`development`, `test`, `production`) |
 | `DEBUG` | FastAPI debug flag |
 | `API_HOST` / `API_PORT` | Bind address used by operators; `make run` currently binds `0.0.0.0:8000` |
-| `OPENAI_API_KEY` | OpenAI key for JobEvaluationAgent (optional until you call `/jobs/{id}/evaluate`) |
+| `OPENAI_API_KEY` | OpenAI key for JobEvaluationAgent (optional until you call `/jobs/{id}/evaluate` or `/evaluation/batch`) |
 | `OPENAI_MODEL` | Agents SDK model id (default `gpt-4o-mini`) |
+| `EVALUATION_CONCURRENCY` | Batch worker threads (default `2`) |
+| `EVALUATION_RATE_LIMIT_PER_MINUTE` | Max model calls per minute in a batch (default `30`) |
 
 Docker Compose publishes Postgres on **host port 5433** so it does not collide with a local Postgres on 5432.
 

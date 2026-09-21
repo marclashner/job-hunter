@@ -30,6 +30,13 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     openai_evaluation_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
     openai_evaluation_seed: int = Field(default=42, ge=0)
+    openai_input_usd_per_million: float = Field(default=0.15, ge=0.0)
+    openai_output_usd_per_million: float = Field(default=0.60, ge=0.0)
+    evaluation_batch_limit_default: int = Field(default=50, ge=1)
+    evaluation_batch_limit_max: int = Field(default=200, ge=1)
+    evaluation_concurrency: int = Field(default=2, ge=1, le=16)
+    evaluation_concurrency_max: int = Field(default=8, ge=1, le=16)
+    evaluation_rate_limit_per_minute: int = Field(default=30, ge=0)
 
     @property
     def sqlalchemy_database_uri(self) -> str:

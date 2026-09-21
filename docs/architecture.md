@@ -41,6 +41,7 @@ Ingested listings live in `jobs`. `source` + `source_job_id` is unique. `raw_dat
 - `POST /sources/lever/{site}/sync` — same sync pipeline against Lever's public postings JSON API, including pagination.
 - `POST /jobs/{id}/hard-filter` — deterministic eligibility vs the primary candidate. Missing salary/location/policy does not fail the job. See [scoring.md](scoring.md).
 - `POST /jobs/{id}/evaluate` — `JobEvaluationAgent` (OpenAI Agents SDK). Persists a grounded `JobEvaluation`. Requires `OPENAI_API_KEY` unless a test runner is injected.
+- `POST /evaluation/batch` — in-process batch: unevaluated jobs (optional `source`, `discovered_after`/`discovered_before`, `limit`), hard-filter discard, agent, persist. Supports `dry_run`, `reevaluate`, and `concurrency`. No distributed queue.
 
 ## Testing
 
